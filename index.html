@@ -126,6 +126,9 @@
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
   .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
   @media (max-width: 768px) { .grid-4, .grid-3, .grid-2 { grid-template-columns: 1fr; } }
+  /* 热点话题网格 */
+  .trend-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  @media (max-width: 768px) { .trend-grid { grid-template-columns: 1fr; } }
   /* 统计卡 */
   .stat-card {
     background: var(--card); border: 1px solid var(--border);
@@ -381,6 +384,7 @@
   <div class="nav-item" data-view="media" onclick="switchView('media')"><span class="nav-icon">👗</span> 自媒体内容</div>
   <div class="nav-item" data-view="finance" onclick="switchView('finance')"><span class="nav-icon">💰</span> 小白理财</div>
   <div class="nav-item" data-view="calendar" onclick="switchView('calendar')"><span class="nav-icon">📅</span> 日历视图</div>
+  <div class="nav-item" data-view="hotnews" onclick="switchView('hotnews')"><span class="nav-icon">🔥</span> 热门热点</div>
   <div class="sidebar-footer">
     <button onclick="exportData()">导出</button>
     <button onclick="document.getElementById('importFile').click()">导入</button>
@@ -432,6 +436,11 @@
         </div>
       </div>
     </div>
+
+    <div class="card">
+      <div class="card-title"><span>🎯 本周各模块完成率</span></div>
+      <div style="display:flex;justify-content:space-around;flex-wrap:wrap;gap:12px;padding:8px 0" id="ringCharts"></div>
+    </div>
   </div>
 
   <!-- ===== 英语学习 ===== -->
@@ -445,8 +454,7 @@
 
     <div class="grid-2">
       <div class="card">
-        <div class="card-title">
-          <span>📖 今日单词 (每日5个)</span>
+        <div class="card-title"><span>📖 今日单词 (每日5个)</span>
           <div style="display:flex;gap:6px;align-items:center">
             <span style="font-size:12px;color:var(--text-muted)" id="wordProgress">0/5</span>
             <button class="btn btn-sm" onclick="startWordQuiz()" id="quizBtn">📝 复习测验</button>
@@ -458,6 +466,17 @@
       <div class="card">
         <div class="card-title"><span>🗣️ 口语跟读练习</span><span style="font-size:11px;color:var(--text-muted)">我说你读,看你说得对不对</span></div>
         <div id="speakPractice"></div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>✍️ 单词默写</span><button class="btn btn-sm" onclick="startDictation()">开始默写</button></div>
+        <div id="dictationArea"><div class="empty-state">点击"开始默写" — 听发音,写出英文单词</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>💬 每日金句</span></div>
+        <div id="dailyQuote"></div>
       </div>
     </div>
 
@@ -527,6 +546,16 @@
       <div style="padding:8px;background:var(--bg);border-radius:8px;font-size:12px;text-align:center;color:var(--text-muted)" id="fitWeekSuggestion"></div>
     </div>
 
+    <div class="card">
+      <div class="card-title"><span>⏰ 训练提醒</span></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+        <input type="time" class="input input-fixed" id="reminderTime" value="18:00" style="width:120px">
+        <button class="btn btn-sm" onclick="setReminder()" id="reminderBtn">🔔 开启提醒</button>
+        <button class="btn btn-sm btn-secondary" onclick="cancelReminder()" id="cancelReminderBtn" style="display:none">关闭提醒</button>
+        <span style="font-size:11px;color:var(--text-muted)" id="reminderStatus"></span>
+      </div>
+    </div>
+
     <div class="grid-2">
       <div class="card">
         <div class="card-title"><span>🏃 有氧动作库</span></div>
@@ -594,6 +623,11 @@
         以下是一些适合做二创(二次创作)的内容类型,你可以根据穿搭和好物方向进行翻拍、混剪、解说:
       </div>
       <div id="recutList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🔥 热门话题趋势</span><span style="font-size:11px;color:var(--text-muted)">穿搭/好物方向参考</span></div>
+      <div id="trendingTopics" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px"></div>
     </div>
 
     <div class="card">
@@ -724,9 +758,16 @@
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span>🏆 理财里程碑</span></div>
-      <div style="display:flex;gap:10px;overflow-x:auto;padding:8px 0" id="milestoneList"></div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>📊 本月支出分类</span></div>
+        <svg viewBox="0 0 200 200" style="width:100%;max-width:200px;margin:0 auto;display:block" id="expensePie"></svg>
+        <div id="expensePieLegend" style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin-top:8px;font-size:10px"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>🏆 理财里程碑</span></div>
+        <div style="display:flex;gap:10px;overflow-x:auto;padding:8px 0" id="milestoneList"></div>
+      </div>
     </div>
   </div>
 
@@ -746,6 +787,15 @@
     <div class="card" id="dayDetailCard" style="display:none">
       <div class="card-title"><span id="dayDetailTitle"></span></div>
       <div id="dayDetailContent"></div>
+    </div>
+  </div>
+
+  <!-- ===== 热门热点 ===== -->
+  <div class="view" id="view-hotnews">
+    <div class="card">
+      <div class="card-title"><span>🔥 今日热点速览</span><span style="font-size:11px;color:var(--text-muted)">穿搭·健身·理财·科技</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="hotTags"></div>
+      <div id="hotNewsList"></div>
     </div>
   </div>
 
@@ -1813,7 +1863,7 @@ function renderFinance() {
   document.getElementById('financeGoal').textContent = store.financeGoal || '点击设置目标 (如:年储蓄3万)';
   document.getElementById('financeMonthlyGoal').textContent = store.financeMonthlyGoal || '--';
   renderFinanceSummary(); renderTxns(); renderLessons();
-  renderBudget(); renderInvestments(); renderMilestones();
+  renderBudget(); renderInvestments(); renderMilestones(); renderExpensePie();
 }
 
 // 预算管理
@@ -1942,6 +1992,291 @@ function renderMilestones() {
   `).join('');
 }
 
+// ========== 每日金句 ==========
+const dailyQuotes = [
+  {en:'The secret of getting ahead is getting started.', zh:'成功的秘诀就是开始行动。', scene:'A: I keep putting off my project. B: The secret of getting ahead is getting started. Just do it!', author:'Mark Twain'},
+  {en:'It does not matter how slowly you go as long as you do not stop.', zh:'走得慢没关系,只要不停下。', scene:'A: I feel like I\'m learning English so slowly. B: It does not matter how slowly you go as long as you do not stop.', author:'Confucius'},
+  {en:'Believe you can and you\'re halfway there.', zh:'相信你可以,你就已经成功了一半。', scene:'A: I\'m nervous about my presentation. B: Believe you can and you\'re halfway there!', author:'Theodore Roosevelt'},
+  {en:'The only way to do great work is to love what you do.', zh:'做出伟大成就的唯一方式是热爱你所做的。', scene:'A: How do you stay motivated at work? B: The only way to do great work is to love what you do.', author:'Steve Jobs'},
+  {en:'Don\'t watch the clock; do what it does. Keep going.', zh:'不要盯着时钟看,像它一样,继续前进。', scene:'A: This workout is so hard... B: Don\'t watch the clock; do what it does. Keep going!', author:'Sam Levenson'},
+  {en:'The future belongs to those who believe in the beauty of their dreams.', zh:'未来属于那些相信自己梦想之美的人。', scene:'A: Do you think I can make it as a content creator? B: The future belongs to those who believe in the beauty of their dreams.', author:'Eleanor Roosevelt'},
+  {en:'You miss 100% of the shots you don\'t take.', zh:'你不尝试,就100%错过了机会。', scene:'A: Should I apply for that job? B: You miss 100% of the shots you don\'t take!', author:'Wayne Gretzky'},
+];
+function renderDailyQuote() {
+  const dayOfYear = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / (1000*60*60*24));
+  const q = dailyQuotes[dayOfYear % dailyQuotes.length];
+  document.getElementById('dailyQuote').innerHTML = `
+    <div style="font-size:15px;font-weight:700;color:var(--primary-dark);line-height:1.6;margin-bottom:8px">"${escapeHtml(q.en)}"</div>
+    <div style="font-size:13px;color:var(--text);margin-bottom:6px">${escapeHtml(q.zh)}</div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:10px">— ${escapeHtml(q.author)}</div>
+    <div style="background:var(--bg);padding:10px;border-radius:6px;font-size:12px;color:var(--text);line-height:1.8">
+      <div style="font-weight:600;color:var(--primary);margin-bottom:4px">🗣️ 情景对话:</div>
+      ${escapeHtml(q.scene)}
+    </div>
+    <button class="btn btn-sm" style="margin-top:8px" onclick="speak('${escapeHtml(q.en).replace(/'/g,"\\'")}')">🔊 听发音</button>
+  `;
+}
+
+// ========== 单词默写 ==========
+let dictationState = {words:[], current:0, score:0, total:0, input:''};
+function startDictation() {
+  const todayWords = store.words.filter(w => w.date === todayStr());
+  if (todayWords.length === 0) { toast('今天还没有单词,请先学习今日单词'); return; }
+  dictationState = {words: todayWords.sort(() => Math.random() - 0.5), current: 0, score: 0, total: todayWords.length, input:''};
+  showDictationWord();
+}
+function showDictationWord() {
+  const s = dictationState;
+  if (s.current >= s.total) {
+    document.getElementById('dictationArea').innerHTML = `
+      <div style="text-align:center;padding:20px">
+        <div style="font-size:40px;margin:12px 0">${s.score}/${s.total}</div>
+        <div style="color:var(--text-muted)">正确率: ${Math.round(s.score/s.total*100)}%</div>
+        <div style="margin-top:8px">${s.score>=s.total*0.8?'🎉 太厉害了!':'💪 继续加油!'}</div>
+        <button class="btn btn-sm" style="margin-top:12px" onclick="startDictation()">再来一次</button>
+      </div>`;
+    return;
+  }
+  const w = s.words[s.current];
+  document.getElementById('dictationArea').innerHTML = `
+    <div style="text-align:center;padding:12px">
+      <div style="font-size:13px;color:var(--text-muted);margin-bottom:8px">第 ${s.current+1}/${s.total} 题 · 听发音写出英文单词</div>
+      <div style="font-size:18px;font-weight:700;color:var(--text);margin-bottom:4px">${escapeHtml(w.zh)}</div>
+      <div style="font-size:12px;color:var(--text-muted);margin-bottom:12px">${escapeHtml(w.phonetic||'')}</div>
+      <button class="btn btn-secondary btn-sm" style="margin-bottom:10px" onclick="speak('${escapeHtml(w.en).replace(/'/g,"\\'")}')">🔊 听发音</button>
+      <div class="input-row" style="justify-content:center">
+        <input type="text" class="input" id="dictationInput" placeholder="输入英文单词..." style="max-width:200px;text-align:center" onkeydown="if(event.key==='Enter')checkDictation()" autocomplete="off">
+        <button class="btn btn-sm" onclick="checkDictation()">确认</button>
+      </div>
+      <div id="dictationFeedback" style="margin-top:8px;font-size:13px;min-height:20px"></div>
+    </div>`;
+  setTimeout(() => { const inp = document.getElementById('dictationInput'); if (inp) inp.focus(); }, 200);
+}
+function checkDictation() {
+  const input = (document.getElementById('dictationInput')?.value || '').trim().toLowerCase();
+  const w = dictationState.words[dictationState.current];
+  const correct = w.en.toLowerCase();
+  const fb = document.getElementById('dictationFeedback');
+  if (input === correct) {
+    dictationState.score++;
+    if (fb) fb.innerHTML = '<span style="color:var(--success)">✅ 正确!</span>';
+  } else {
+    if (fb) fb.innerHTML = `<span style="color:var(--danger)">❌ 正确答案: <b>${escapeHtml(w.en)}</b></span>`;
+  }
+  dictationState.current++;
+  setTimeout(showDictationWord, 1200);
+}
+
+// ========== 环形图 ==========
+function renderRingCharts() {
+  const now = new Date();
+  const weekPrefix = getWeekPrefix();
+  // 英语完成率
+  let enTotal = 0, enDone = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() - now.getDay() + i);
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dayTasks = store.enTasks.filter(t => t.date === ds);
+    enTotal += dayTasks.length;
+    enDone += dayTasks.filter(t => t.done).length;
+  }
+  // 健身完成率
+  let fitTotal = 0, fitDone = 0;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now); d.setDate(d.getDate() - now.getDay() + i);
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dayTasks = store.fitTasks.filter(t => t.date === ds);
+    fitTotal += dayTasks.length;
+    fitDone += dayTasks.filter(t => t.done).length;
+  }
+  // 自媒体完成率
+  let mediaTotal = 0, mediaDone = 0;
+  store.publishPlan.forEach(p => { mediaTotal++; if (p.done) mediaDone++; });
+
+  const charts = [
+    {label:'📚 英语', pct: enTotal > 0 ? Math.round(enDone/enTotal*100) : 0, color:'#7c3aed'},
+    {label:'💪 健身', pct: fitTotal > 0 ? Math.round(fitDone/fitTotal*100) : 0, color:'#10b981'},
+    {label:'👗 自媒体', pct: mediaTotal > 0 ? Math.round(mediaDone/mediaTotal*100) : 0, color:'#ec4899'},
+    {label:'💰 理财', pct: store.budget > 0 ? Math.round(Math.min(store.transactions.filter(t => t.type==='expense').length / 7 * 100, 100)) : 0, color:'#f59e0b'},
+  ];
+  document.getElementById('ringCharts').innerHTML = charts.map(c => ringSVG(c.pct, c.color, c.label)).join('');
+}
+function ringSVG(pct, color, label) {
+  const r = 28, circ = 2 * Math.PI * r;
+  const offset = circ - (pct / 100) * circ;
+  return `<div style="text-align:center">
+    <svg width="70" height="70" viewBox="0 0 70 70">
+      <circle cx="35" cy="35" r="${r}" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+      <circle cx="35" cy="35" r="${r}" fill="none" stroke="${color}" stroke-width="6" stroke-dasharray="${circ}" stroke-dashoffset="${offset}" transform="rotate(-90 35 35)" stroke-linecap="round"/>
+      <text x="35" y="32" text-anchor="middle" font-size="16" font-weight="700" fill="${color}">${pct}%</text>
+    </svg>
+    <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${label}</div>
+  </div>`;
+}
+
+// ========== 训练提醒 ==========
+let reminderInterval = null;
+function setReminder() {
+  if (!('Notification' in window)) { toast('浏览器不支持通知'); return; }
+  const timeVal = document.getElementById('reminderTime').value;
+  if (!timeVal) { toast('请选择提醒时间'); return; }
+  if (Notification.permission === 'denied') { toast('通知权限被拒绝,请在浏览器设置中开启'); return; }
+  const requestAndSet = () => {
+    const [h, m] = timeVal.split(':').map(Number);
+    // 清除旧定时器
+    if (reminderInterval) clearInterval(reminderInterval);
+    reminderInterval = setInterval(() => {
+      const now = new Date();
+      if (now.getHours() === h && now.getMinutes() === m && now.getSeconds() < 5) {
+        new Notification('💪 训练时间到!', {body: '别忘了今天的训练计划,加油!', icon: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" rx="22" fill="%237c3aed"/%3E%3Ctext x="50" y="70" font-size="40" text-anchor="middle" fill="white"%3E💪%3C/text%3E%3C/svg%3E'});
+      }
+    }, 30000);
+    store.reminderTime = timeVal;
+    saveData();
+    document.getElementById('reminderBtn').style.display = 'none';
+    document.getElementById('cancelReminderBtn').style.display = '';
+    document.getElementById('reminderStatus').textContent = '✅ 已设置 ' + timeVal + ' 提醒';
+    toast('训练提醒已开启: 每天 ' + timeVal);
+  };
+  if (Notification.permission === 'granted') {
+    requestAndSet();
+  } else {
+    Notification.requestPermission().then(p => {
+      if (p === 'granted') requestAndSet();
+      else toast('需要允许通知权限才能提醒');
+    });
+  }
+}
+function cancelReminder() {
+  if (reminderInterval) { clearInterval(reminderInterval); reminderInterval = null; }
+  delete store.reminderTime;
+  saveData();
+  document.getElementById('reminderBtn').style.display = '';
+  document.getElementById('cancelReminderBtn').style.display = 'none';
+  document.getElementById('reminderStatus').textContent = '';
+  toast('训练提醒已关闭');
+}
+function restoreReminder() {
+  if (store.reminderTime && 'Notification' in window && Notification.permission === 'granted') {
+    document.getElementById('reminderTime').value = store.reminderTime;
+    setReminder();
+  }
+}
+
+// ========== 热门话题趋势 ==========
+const trendingData = [
+  {tag:'#夏日通勤穿搭', desc:'一周不重样的通勤look', hot:'🔥 热门', cat:'穿搭'},
+  {tag:'#百元平价好物', desc:'学生党必入的平价护肤', hot:'📈 上升', cat:'好物'},
+  {tag:'#居家健身打卡', desc:'在家就能练的5个动作', hot:'🔥 热门', cat:'健身'},
+  {tag:'#胶囊衣橱挑战', desc:'15件单品搭30天', hot:'💡 新趋势', cat:'穿搭'},
+  {tag:'#基金定投入门', desc:'每月500也能理财', hot:'📈 上升', cat:'理财'},
+  {tag:'#OOTD日常', desc:'普通女孩的每日穿搭', hot:'🔥 热门', cat:'穿搭'},
+  {tag:'#梨形身材穿搭', desc:'显瘦遮肉搭配技巧', hot:'💡 新趋势', cat:'穿搭'},
+  {tag:'#副业赚钱', desc:'适合上班族的副业方向', hot:'🔥 热门', cat:'理财'},
+  {tag:'#跳绳挑战30天', desc:'每天1000个的变化', hot:'📈 上升', cat:'健身'},
+];
+function renderTrendingTopics() {
+  document.getElementById('trendingTopics').innerHTML = trendingData.map(t => `
+    <div style="background:var(--bg);border-radius:8px;padding:10px;cursor:pointer;transition:all 0.15s" onmouseover="this.style.background='var(--primary-light)'" onmouseout="this.style.background='var(--bg)'">
+      <div style="font-size:10px;color:var(--primary);font-weight:600;margin-bottom:4px">${t.hot}</div>
+      <div style="font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px">${t.tag}</div>
+      <div style="font-size:11px;color:var(--text-muted)">${t.desc}</div>
+      <span style="font-size:9px;padding:1px 6px;border-radius:3px;background:${t.cat==='穿搭'?'#fce7f3':t.cat==='好物'?'#ede9fe':t.cat==='健身'?'#d1fae5':'#fef3c7'};color:${t.cat==='穿搭'?'#be185d':t.cat==='好物'?'#5b21b6':t.cat==='健身'?'#047857':'#b45309'};margin-left:4px">${t.cat}</span>
+    </div>
+  `).join('');
+}
+
+// ========== 支出饼图 ==========
+function renderExpensePie() {
+  const now = new Date();
+  const mt = getMonthTxns(now.getFullYear(), now.getMonth());
+  const expenses = mt.filter(t => t.type === 'expense');
+  const svg = document.getElementById('expensePie');
+  const legendEl = document.getElementById('expensePieLegend');
+  if (expenses.length === 0) {
+    svg.innerHTML = '<text x="100" y="100" text-anchor="middle" fill="#9ca3af" font-size="12">暂无支出数据</text>';
+    legendEl.innerHTML = '';
+    return;
+  }
+  // 按分类汇总
+  const catMap = {};
+  expenses.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+  const total = Object.values(catMap).reduce((a,b) => a+b, 0);
+  const colors = ['#7c3aed','#ec4899','#f59e0b','#10b981','#06b6d4','#ef4444','#8b5cf6','#f97316','#14b8a6'];
+  let cumulative = 0;
+  let paths = '';
+  let i = 0;
+  Object.entries(catMap).sort((a,b) => b[1]-a[1]).forEach(([cat, amt]) => {
+    const pct = amt / total;
+    const startAngle = cumulative * 2 * Math.PI;
+    const endAngle = (cumulative + pct) * 2 * Math.PI;
+    const x1 = 100 + 80 * Math.cos(startAngle - Math.PI/2);
+    const y1 = 100 + 80 * Math.sin(startAngle - Math.PI/2);
+    const x2 = 100 + 80 * Math.cos(endAngle - Math.PI/2);
+    const y2 = 100 + 80 * Math.sin(endAngle - Math.PI/2);
+    const largeArc = pct > 0.5 ? 1 : 0;
+    paths += `<path d="M100,100 L${x1},${y1} A80,80 0 ${largeArc},1 ${x2},${y2} Z" fill="${colors[i%colors.length]}" stroke="#fff" stroke-width="1"/>`;
+    cumulative += pct;
+    i++;
+  });
+  svg.innerHTML = paths;
+  // 图例
+  i = 0; cumulative = 0;
+  legendEl.innerHTML = Object.entries(catMap).sort((a,b) => b[1]-a[1]).map(([cat, amt]) => {
+    const pct = Math.round(amt/total*100);
+    return `<span style="display:inline-flex;align-items:center;gap:3px"><span style="width:8px;height:8px;border-radius:50%;background:${colors[i++%colors.length]};display:inline-block"></span> ${cat} ${pct}%</span>`;
+  }).join('');
+}
+
+// ========== 热门热点新闻 ==========
+const hotNewsData = [
+  {title:'夏日运动穿搭成小红书新趋势', summary:'运动bra+高腰legging+防晒外套的组合成为今夏最热门出街穿搭,相关笔记超50万篇', cat:'穿搭', time:'2小时前'},
+  {title:'央行下调LPR利率,房贷月供减少', summary:'5年期以上LPR下调10个基点,百万房贷每月少还约60元,利好刚需购房者', cat:'理财', time:'5小时前'},
+  {title:'居家健身器材销量暴涨300%', summary:'弹力带、哑铃、瑜伽垫成为最受欢迎居家健身三件套,平价替代品搜索量激增', cat:'健身', time:'8小时前'},
+  {title:'AI穿搭助手App走红,拍照即可推荐搭配', summary:'多款AI穿搭App登上应用商店榜首,上传衣橱照片即可生成每日搭配方案', cat:'科技', time:'1天前'},
+  {title:'微短剧成自媒体新风口,单集收入破万', summary:'抖音/快手微短剧赛道爆发,穿搭博主跨界拍短剧涨粉百万,变现能力超传统图文', cat:'自媒体', time:'1天前'},
+  {title:'年轻人"精致穷"消费观引热议', summary:'月薪5千花3千买护肤品的话题登上热搜,网友讨论消费降级下的"平替文化"', cat:'热点', time:'2天前'},
+  {title:'国家卫健委发布最新膳食指南', summary:'强调每日运动30分钟+均衡饮食,首次将"减糖"纳入核心建议', cat:'健身', time:'2天前'},
+  {title:'基金投顾试点扩容,小白理财更便捷', summary:'多家平台获基金投顾牌照,一键跟投功能降低理财门槛,适合新手入门', cat:'理财', time:'3天前'},
+];
+function renderHotNews() {
+  const tags = ['全部','穿搭','健身','理财','科技','自媒体','热点'];
+  document.getElementById('hotTags').innerHTML = tags.map((t, i) =>
+    `<span style="font-size:11px;padding:4px 10px;border-radius:12px;cursor:pointer;font-weight:${i===0?'700':'400'};background:${i===0?'var(--primary)':'var(--bg)'};color:${i===0?'white':'var(--text)'}" onclick="filterHotNews('${t}',this)">${t}</span>`
+  ).join('');
+  filterHotNews('全部', document.getElementById('hotTags').querySelector('span'));
+}
+let hotFilter = '全部';
+function filterHotNews(cat, el) {
+  hotFilter = cat;
+  // 更新标签样式
+  document.querySelectorAll('#hotTags span').forEach(s => {
+    s.style.background = 'var(--bg)'; s.style.color = 'var(--text)'; s.style.fontWeight = '400';
+  });
+  if (el) { el.style.background = 'var(--primary)'; el.style.color = 'white'; el.style.fontWeight = '700'; }
+  const list = cat === '全部' ? hotNewsData : hotNewsData.filter(n => n.cat === cat);
+  const catColors = {穿搭:'#be185d',健身:'#047857',理财:'#b45309',科技:'#7c3aed',自媒体:'#ec4899',热点:'#f59e0b'};
+  document.getElementById('hotNewsList').innerHTML = list.map(n => `
+    <div style="padding:14px;border-bottom:1px solid #f3f4f6;cursor:pointer" onclick="openNewsDetail('${escapeHtml(n.title).replace(/'/g,"\\'")}','${escapeHtml(n.summary).replace(/'/g,"\\'")}','${n.cat}','${n.time}')">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <span style="font-size:10px;padding:1px 6px;border-radius:3px;background:${(catColors[n.cat]||'#7c3aed')}15;color:${catColors[n.cat]||'#7c3aed'};font-weight:600">${n.cat}</span>
+        <span style="font-size:10px;color:var(--text-light)">${n.time}</span>
+      </div>
+      <div style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:4px">${escapeHtml(n.title)}</div>
+      <div style="font-size:12px;color:var(--text-muted);line-height:1.6">${escapeHtml(n.summary)}</div>
+    </div>
+  `).join('');
+}
+function openNewsDetail(title, summary, cat, time) {
+  showModal('🔥 ' + title, `
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px">${cat} · ${time}</div>
+    <div style="font-size:14px;color:var(--text);line-height:1.8">${summary}</div>
+    <div style="font-size:12px;color:var(--text-muted);margin-top:12px;padding:10px;background:var(--bg);border-radius:6px">
+      💡 <b>创作建议:</b> 可结合此热点做二创内容,在标题和标签中加入相关关键词,抓住流量红利期
+    </div>
+  `);
+}
+
 // ========== 日历 ==========
 function changeMonth(d) { store.calMonth += d; if (store.calMonth<0){store.calMonth=11;store.calYear--;} if(store.calMonth>11){store.calMonth=0;store.calYear++;} saveData(); renderCalendar(); }
 function goToday() { const d=new Date(); store.calYear=d.getFullYear(); store.calMonth=d.getMonth(); saveData(); renderCalendar(); }
@@ -2065,11 +2400,13 @@ function renderAll(){
   document.getElementById('enExamName').textContent=store.enExamName||'点击设置';
   document.getElementById('enExamDate').textContent=store.enExamDate||'点击设置';
   if(store.enExamDate){const ex=new Date(store.enExamDate);const diff=Math.ceil((ex-d)/(1000*60*60*24));document.getElementById('examCountdown').textContent=diff>0?`距考试${diff}天`:diff===0?'今天考试!':`已过${-diff}天`;}else{document.getElementById('examCountdown').textContent='';}
-  renderWords(); renderEnWeekPlan(); renderEnBarChart(); renderWordLibrary(); renderSpeakPractice();
+  renderWords(); renderEnWeekPlan(); renderEnBarChart(); renderWordLibrary(); renderSpeakPractice(); renderDailyQuote();
   renderFitGoal(); renderFitTasks(); renderFitStats(); renderFitWeekPlan(); renderCardioList(); renderStrengthList(); renderWeightChart();
-  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderPublishPlan(); renderWorks(); renderMediaStats(); renderMediaCalendar();
+  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderPublishPlan(); renderWorks(); renderMediaStats(); renderMediaCalendar(); renderTrendingTopics();
   renderFinance();
   renderDashboard();
+  renderRingCharts();
+  renderHotNews();
 }
 
 document.getElementById('weightDate').value=todayStr();
@@ -2108,6 +2445,7 @@ function autoInitDaily() {
 autoInitDaily();
 saveData();
 renderAll();
+restoreReminder();
 </script>
 </body>
 </html>
