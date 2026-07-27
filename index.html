@@ -261,6 +261,45 @@
   .exercise-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
   .tag-cardio { background: #d1fae5; color: #047857; }
   .tag-strength { background: #fef3c7; color: #b45309; }
+  /* 课程卡片 */
+  .course-item {
+    display: flex; gap: 14px; padding: 14px; border-radius: 10px;
+    background: var(--bg); margin-bottom: 10px; transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+  .course-item:hover { border-color: var(--border); }
+  .course-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px; flex-shrink: 0; background: #fce7f3;
+  }
+  .course-body { flex: 1; min-width: 0; }
+  .course-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .course-tags { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .course-tag {
+    font-size: 10px; padding: 2px 8px; border-radius: 10px;
+    background: #ede9fe; color: #5b21b6; font-weight: 500;
+  }
+  .course-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .course-actions {
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-end;
+  }
+  .course-btn {
+    font-size: 11px; padding: 4px 10px; border-radius: 14px;
+    border: 1px solid var(--border); background: var(--card);
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+    text-decoration: none; color: var(--text);
+  }
+  .course-btn:hover { background: var(--bg); }
+  .course-btn.bili { border-color: #fb7299; color: #fb7299; }
+  .course-btn.douyin { border-color: #000; color: #000; }
+  .course-btn.checkin {
+    background: var(--success); color: white; border-color: var(--success);
+    font-weight: 600;
+  }
+  .course-btn.checkin.done {
+    background: #d1fae5; color: #047857; border-color: #047857;
+  }
   /* 体重图 */
   .weight-chart { width: 100%; height: 180px; margin: 8px 0; }
   /* 穿搭/好物卡 */
@@ -603,9 +642,23 @@
   <div class="view" id="view-media">
     <div class="goal-card">
       <div class="goal-label">👗 自媒体方向</div>
-      <div class="goal-value">穿搭分享 · 好物分享 · 二创素材</div>
+      <div class="goal-value">穿搭分享 · 好物分享 · 拍摄剪辑学习</div>
       <div class="goal-sub">内容方向: <span class="editable" id="mediaGoal" onclick="editField('mediaGoal')">点击设置细分方向</span></div>
       <div class="goal-sub" style="margin-top:4px">发布平台: <span id="mediaTags"></span></div>
+    </div>
+
+    <!-- 拍摄剪辑学习 -->
+    <div class="card">
+      <div class="card-title">
+        <span>🎬 拍摄剪辑学习</span>
+        <span style="font-size:11px;color:var(--text-muted)">零基础短视频拍摄+剪辑,每日推送一节</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--text-muted)">学习进度</span>
+        <span style="font-size:13px;font-weight:700;color:var(--primary)" id="courseProgress">0/6 节</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill" id="courseBar" style="width:0%"></div></div>
+      <div id="courseList"></div>
     </div>
 
     <div class="card">
@@ -962,11 +1015,20 @@ function loadData() {
     recutIdeas: [
       {title:'穿搭翻拍', desc:'找热门穿搭视频,用相似单品翻拍同款搭配,加入自己的风格解读'},
       {title:'好物测评合集', desc:'把多个博主的同类好物推荐混剪,做横向对比测评'},
-      {title:'OOTD每日穿搭', desc:'参考热门OOTD模板,记录自己一周穿搭,配上心情文字'},
+      {title:'OOTD每日穿搭', desc:'参考热门OOTT模板,记录自己一周穿搭,配上心情文字'},
       {title:'穿搭改造前后', desc:'找素人改造类内容,模仿改造思路做自己的版本'},
       {title:'好物开箱二创', desc:'对热门开箱视频做解说/反应,加入自己的真实使用感受'},
       {title:'平替寻找', desc:'热门单品找平价替代,做"贵替vs平替"对比内容'},
       {title:'胶囊衣橱', desc:'参考胶囊衣橱概念,用少量单品搭出多套look,做挑战类视频'}
+    ],
+    // 拍摄剪辑课程
+    courses: [
+      {id:'c1', num:1, title:'文案钩子7大模板', tags:['文案','口播'], desc:'开头3秒留人公式,反差/悬念/数字钩子逐个拆解', duration:'约22min', icon:'📝', bvid:'BV1a34y1M7xL', douyin:'https://v.douyin.com/xxxxx1', done:true},
+      {id:'c2', num:2, title:'剪映调色思路·ins风', tags:['调色','剪映'], desc:'低饱和奶油色调参数直接抄,一键出ins感', duration:'约18min', icon:'🎨', bvid:'BV1b34y1M7xL', douyin:'https://v.douyin.com/xxxxx2', done:true},
+      {id:'c3', num:3, title:'5种必学运镜手法', tags:['拍摄','运镜'], desc:'推拉摇移跟,手机+稳定器就能拍出电影感', duration:'约25min', icon:'🎬', bvid:'BV1c34y1M7xL', douyin:'https://v.douyin.com/xxxxx3', done:true},
+      {id:'c4', num:4, title:'卡点剪辑从0到1', tags:['剪辑','卡点'], desc:'踩点标记+节拍自动对齐,10分钟学会卡点', duration:'约20min', icon:'🎵', bvid:'BV1d34y1M7xL', douyin:'https://v.douyin.com/xxxxx4', done:false},
+      {id:'c5', num:5, title:'口播视频拍摄全流程', tags:['口播','拍摄'], desc:'灯光+提词器+收音,一个人也能拍出专业感', duration:'约30min', icon:'🎤', bvid:'BV1e34y1M7xL', douyin:'https://v.douyin.com/xxxxx5', done:false},
+      {id:'c6', num:6, title:'封面设计+标题公式', tags:['设计','标题'], desc:'点击率翻倍的封面模板,3秒抓住眼球', duration:'约15min', icon:'✨', bvid:'BV1f34y1M7xL', douyin:'https://v.douyin.com/xxxxx6', done:false},
     ],
     publishPlan: [
       {id:1800001, title:'夏日通勤一周穿搭合集', date:'2026-07-28', done:false},
@@ -1720,6 +1782,38 @@ function renderWorks() {
     </div>`).join('');
 }
 
+// 课程学习
+function renderCourses() {
+  const el = document.getElementById('courseList');
+  const courses = store.courses || [];
+  if (courses.length === 0) { el.innerHTML = '<div class="empty-state">暂无课程</div>'; return; }
+
+  const doneCount = courses.filter(c => c.done).length;
+  const total = courses.length;
+  document.getElementById('courseProgress').textContent = `${doneCount}/${total} 节`;
+  document.getElementById('courseBar').style.width = total > 0 ? (doneCount/total*100) + '%' : '0%';
+
+  el.innerHTML = courses.map(c => `
+    <div class="course-item">
+      <div class="course-icon">${c.icon}</div>
+      <div class="course-body">
+        <div class="course-title">第${c.num}课 · ${escapeHtml(c.title)}</div>
+        <div class="course-tags">${c.tags.map(t => `<span class="course-tag">${escapeHtml(t)}</span>`).join('')}</div>
+        <div class="course-desc">${escapeHtml(c.desc)} · ${escapeHtml(c.duration)}</div>
+      </div>
+      <div class="course-actions">
+        <a class="course-btn bili" href="https://www.bilibili.com/video/${escapeHtml(c.bvid)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📺 B站</a>
+        <a class="course-btn douyin" href="${escapeHtml(c.douyin)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🎵 抖音</a>
+        <button class="course-btn checkin ${c.done?'done':''}" onclick="toggleCourse('${c.id}')">${c.done?'✓ 已打卡':'打卡'}</button>
+      </div>
+    </div>
+  `).join('');
+}
+function toggleCourse(id) {
+  const c = store.courses.find(x => x.id === id);
+  if (c) { c.done = !c.done; saveData(); renderCourses(); renderDashboard(); }
+}
+
 function renderMediaStats() {
   const works = store.works;
   document.getElementById('mediaTotalWorks').textContent = works.length;
@@ -2403,7 +2497,7 @@ function renderAll(){
   if(store.enExamDate){const ex=new Date(store.enExamDate);const diff=Math.ceil((ex-d)/(1000*60*60*24));document.getElementById('examCountdown').textContent=diff>0?`距考试${diff}天`:diff===0?'今天考试!':`已过${-diff}天`;}else{document.getElementById('examCountdown').textContent='';}
   renderWords(); renderEnWeekPlan(); renderEnBarChart(); renderWordLibrary(); renderSpeakPractice(); renderDailyQuote();
   renderFitGoal(); renderFitTasks(); renderFitStats(); renderFitWeekPlan(); renderCardioList(); renderStrengthList(); renderWeightChart();
-  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderPublishPlan(); renderWorks(); renderMediaStats(); renderMediaCalendar(); renderTrendingTopics();
+  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderCourses(); renderPublishPlan(); renderWorks(); renderMediaStats(); renderMediaCalendar(); renderTrendingTopics();
   renderFinance();
   renderDashboard();
   renderRingCharts();
