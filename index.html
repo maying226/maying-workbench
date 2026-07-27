@@ -243,43 +243,16 @@
     margin-top: 8px; border: none;
   }
   .exercise-video-link:hover { background: var(--primary); color: white; }
-  .exercise-steps { margin-top: 8px; }
-  .exercise-steps .step {
-    display: flex; align-items: flex-start; gap: 8px;
-    padding: 6px 0; font-size: 12px; color: var(--text);
-    border-bottom: 1px dashed var(--border);
+  /* 内嵌B站视频 */
+  .exercise-video { margin-top: 8px; }
+  .exercise-video-label {
+    font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px;
   }
-  .exercise-steps .step:last-child { border-bottom: none; }
-  .exercise-steps .step-num {
-    width: 20px; height: 20px; border-radius: 50%;
-    background: var(--primary-light); color: var(--primary-dark);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  .video-wrapper {
+    position: relative; padding-bottom: 56.25%; height: 0; border-radius: 8px; overflow: hidden;
   }
-  /* SVG动作图 */
-  .exercise-svg {
-    width: 100%; max-width: 280px; margin: 8px auto; display: block;
-  }
-  .exercise-svg-container {
-    text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; margin: 8px 0;
-  }
-  .video-popup {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-    display: none; align-items: center; justify-content: center;
-    z-index: 300; padding: 20px;
-  }
-  .video-popup.show { display: flex; }
-  .video-popup-inner {
-    background: var(--card); border-radius: var(--radius);
-    width: 100%; max-width: 600px; overflow: hidden;
-  }
-  .video-popup-header {
-    display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 16px; border-bottom: 1px solid var(--border);
-  }
-  .video-popup-close {
-    background: none; border: none; font-size: 24px; cursor: pointer;
-    color: var(--text-muted);
+  .video-wrapper iframe {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
   }
   .exercise-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
   .tag-cardio { background: #d1fae5; color: #047857; }
@@ -902,23 +875,23 @@ function loadData() {
     fitTasks: [],
     fitWeekPlan: ['休息','有氧','无氧','有氧','无氧','混合','休息'],
     cardioExercises: [
-      {name:'慢跑', desc:'30-40分钟 燃脂入门', detail:'热身5min→慢跑30min→拉伸5min', tips:'保持心率120-140,能说话但不能唱歌的程度', common:'脚跟先着地,不要弯腰驼背', muscles:'全身燃脂', steps:['先快走2-3分钟热身','开始慢跑,保持匀速','鼻子吸气,嘴巴呼气','脚掌中部先着地','跑完后慢走5分钟冷却','拉伸大腿前后侧各30秒'], video:'https://www.bilibili.com/video/BV1gJ411z7V6'},
-      {name:'跳绳', desc:'15-20分钟 高效燃脂', detail:'分组:跳1分钟+休息30秒×10组', tips:'脚尖落地,膝盖微屈缓冲,不要跳太高', common:'全脚掌落地容易伤膝盖', muscles:'全身+小腿+核心', steps:['选一根合适长度的跳绳','双手握柄,手腕发力摇绳','双脚并拢,脚尖着地','膝盖微弯缓冲冲击力','跳30秒休息15秒为一组','新手从5组开始逐渐加量'], video:'https://www.bilibili.com/video/BV1ab4y1S7fW'},
-      {name:'开合跳', desc:'5分钟热身/20分钟燃脂', detail:'手脚同时打开合拢,保持节奏', tips:'核心收紧,落地轻,呼吸配合动作', common:'手臂没伸直,落地太重', muscles:'全身+肩部+腿部', steps:['双脚并拢,双手放体侧','跳起时双脚打开与肩同宽','同时双手从体侧举过头顶','再跳回起始姿势','保持节奏,不要停顿','可以做30秒×5组'], video:'https://www.bilibili.com/video/BV1rJ411v7pF'},
-      {name:'高抬腿', desc:'30秒×5组 爆发力训练', detail:'大腿抬到与地面平行,快速交替', tips:'摆臂配合抬腿节奏,核心收紧', common:'腿抬不够高,身体后仰', muscles:'腿部+核心+髋部', steps:['原地站立,核心收紧','左膝抬到与地面平行','同时右臂前摆','快速交替左右腿','保持上身挺直不后仰','30秒一组,做5组'], video:'https://www.bilibili.com/video/BV1QJ411Y7Lp'},
-      {name:'波比跳', desc:'10个×3组 全身燃脂', detail:'下蹲→俯卧撑→跳起,连贯完成', tips:'动作连贯比速度重要,初学者可去掉俯卧撑', common:'腰部塌陷,跳起不够高', muscles:'全身(胸+腿+核心)', steps:['站立,双脚与肩同宽','下蹲,双手撑地','双脚向后跳出成平板支撑','做1个俯卧撑(初学者可跳过)','双脚跳回手旁','用力向上跳起,双手过头','落地后立即下一个'], video:'https://www.bilibili.com/video/BV1wJ411Y7kz'},
-      {name:'登山跑', desc:'30秒×4组 核心+燃脂', detail:'平板支撑姿势,膝盖交替靠近胸口', tips:'臀部不要翘太高,保持身体一条线', common:'臀部过高,速度不均匀', muscles:'核心+髋屈肌+肩部', steps:['双手撑地,呈平板支撑','核心收紧,身体成直线','左膝向胸口方向快速收','同时右腿向后蹬直','快速交替,像在爬山','保持臀部不抬高','30秒一组,做4组'], video:'https://www.bilibili.com/video/BV1r7411n7RQ'},
-      {name:'椭圆机', desc:'30-40分钟 低冲击有氧', detail:'匀速踩踏,可加阻力,对膝盖友好', tips:'脚掌贴紧踏板,不要踮脚,手扶把手保持平衡', common:'身体晃动太大,速度忽快忽慢', muscles:'腿部+臀部', steps:['调节合适阻力','双脚踩实踏板','双手握把手','匀速踩踏,保持节奏','上半身不要左右晃动','结束时逐渐降低速度'], video:'https://www.bilibili.com/video/BV1v4411a7Lx'}
+      {name:'慢跑', desc:'30-40分钟 燃脂入门', detail:'热身5min→慢跑30min→拉伸5min', tips:'保持心率120-140,能说话但不能唱歌的程度', common:'脚跟先着地,不要弯腰驼背', muscles:'全身燃脂', video:'BV1gJ411z7V6'},
+      {name:'跳绳', desc:'15-20分钟 高效燃脂', detail:'分组:跳1分钟+休息30秒×10组', tips:'脚尖落地,膝盖微屈缓冲,不要跳太高', common:'全脚掌落地容易伤膝盖', muscles:'全身+小腿+核心', video:'BV1ab4y1S7fW'},
+      {name:'开合跳', desc:'5分钟热身/20分钟燃脂', detail:'手脚同时打开合拢,保持节奏', tips:'核心收紧,落地轻,呼吸配合动作', common:'手臂没伸直,落地太重', muscles:'全身+肩部+腿部', video:'BV1rJ411v7pF'},
+      {name:'高抬腿', desc:'30秒×5组 爆发力训练', detail:'大腿抬到与地面平行,快速交替', tips:'摆臂配合抬腿节奏,核心收紧', common:'腿抬不够高,身体后仰', muscles:'腿部+核心+髋部', video:'BV1QJ411Y7Lp'},
+      {name:'波比跳', desc:'10个×3组 全身燃脂', detail:'下蹲→俯卧撑→跳起,连贯完成', tips:'动作连贯比速度重要,初学者可去掉俯卧撑', common:'腰部塌陷,跳起不够高', muscles:'全身(胸+腿+核心)', video:'BV1wJ411Y7kz'},
+      {name:'登山跑', desc:'30秒×4组 核心+燃脂', detail:'平板支撑姿势,膝盖交替靠近胸口', tips:'臀部不要翘太高,保持身体一条线', common:'臀部过高,速度不均匀', muscles:'核心+髋屈肌+肩部', video:'BV1r7411n7RQ'},
+      {name:'椭圆机', desc:'30-40分钟 低冲击有氧', detail:'匀速踩踏,可加阻力,对膝盖友好', tips:'脚掌贴紧踏板,不要踮脚,手扶把手保持平衡', common:'身体晃动太大,速度忽快忽慢', muscles:'腿部+臀部', video:'BV1v4411a7Lx'}
     ],
     strengthExercises: [
-      {name:'深蹲', desc:'下肢之王 4组×12次', detail:'双脚与肩同宽,下蹲至大腿平行地面', tips:'膝盖方向与脚尖一致,背部挺直,重心在脚后跟', common:'膝盖内扣、脚跟离地、弓背', muscles:'股四头肌+臀部+核心', steps:['双脚与肩同宽,脚尖微外八','双手前伸或交叉抱胸','吸气,臀部向后坐下蹲','蹲到大腿与地面平行','膝盖不要超过脚尖太多','呼气,用脚跟发力站起'], svg:'<svg viewBox="0 0 120 160" class="exercise-svg"><circle cx="60" cy="25" r="12" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="37" x2="60" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="50" x2="35" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="50" x2="85" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="80" x2="40" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="80" x2="80" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="40" y1="120" x2="40" y2="150" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="120" x2="80" y2="150" stroke="#7c3aed" stroke-width="3"/><text x="60" y="155" text-anchor="middle" font-size="10" fill="#6b7280">深蹲姿势</text></svg>'},
-      {name:'臀桥', desc:'蜜桃臀必备 4组×15次', detail:'仰卧屈膝,臀部发力向上顶,顶峰停留2秒', tips:'下巴微收,不要用腰代偿,感受臀部发力', common:'腰过度弓起、脚离臀部太远', muscles:'臀大肌+腘绳肌', steps:['仰卧,双膝弯曲,脚掌贴地','双脚与臀同宽','手臂放身体两侧','呼气,臀部向上抬起','身体从肩到膝成直线','顶峰收紧臀部2秒','吸气,慢慢放下'], svg:'<svg viewBox="0 0 120 100" class="exercise-svg"><line x1="20" y1="80" x2="100" y2="80" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="30" cy="55" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="65" x2="30" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="72" x2="15" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="72" x2="45" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="65" x2="70" y2="50" stroke="#7c3aed" stroke-width="3"/><line x1="70" y1="50" x2="100" y2="55" stroke="#7c3aed" stroke-width="3"/><text x="60" y="95" text-anchor="middle" font-size="10" fill="#6b7280">臀桥姿势</text></svg>'},
-      {name:'平板支撑', desc:'核心训练 3组×45-60秒', detail:'手肘撑地,身体成一条直线', tips:'收紧腹部和臀部,不要塌腰或撅臀,目视下方', common:'腰部塌陷、臀部过高、憋气', muscles:'核心+肩部+背部', steps:['俯卧,双肘弯曲撑地','肘在肩正下方','双脚并拢,脚尖着地','收紧腹部和臀部','身体从头到脚跟成直线','保持均匀呼吸','坚持30-60秒'], svg:'<svg viewBox="0 0 140 80" class="exercise-svg"><line x1="20" y1="60" x2="120" y2="60" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="30" cy="35" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="43" x2="30" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="50" x2="15" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="50" x2="45" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="43" x2="90" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="90" y1="35" x2="120" y2="40" stroke="#7c3aed" stroke-width="3"/><line x1="90" y1="35" x2="120" y2="30" stroke="#7c3aed" stroke-width="3"/><text x="70" y="75" text-anchor="middle" font-size="10" fill="#6b7280">平板支撑</text></svg>'},
-      {name:'跪姿俯卧撑', desc:'上肢入门 3组×10次', detail:'膝盖着地,手比肩宽,身体下降至胸近地面', tips:'核心收紧,身体成直线,手肘与身体呈45度', common:'肘打太开、腰部塌陷、只做半程', muscles:'胸肌+肱三头肌+肩前束', steps:['双膝着地,脚踝交叉','双手比肩稍宽撑地','身体从膝到肩成直线','吸气,弯曲手肘下降','胸部接近地面但不触地','呼气,推回起始位置','保持核心收紧不塌腰'], svg:'<svg viewBox="0 0 140 90" class="exercise-svg"><line x1="20" y1="70" x2="120" y2="70" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="35" cy="30" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="35" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="45" x2="20" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="45" x2="50" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="55" x2="80" y2="65" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="65" x2="100" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="65" x2="100" y2="60" stroke="#7c3aed" stroke-width="3"/><text x="70" y="85" text-anchor="middle" font-size="10" fill="#6b7280">跪姿俯卧撑</text></svg>'},
-      {name:'哑铃推举', desc:'肩部塑形 4组×12次', detail:'坐姿,哑铃从肩部推至头顶,手臂伸直但不锁死', tips:'核心收紧,不要借力后仰,小重量多次数', common:'用腰借力、哑铃相撞、耸肩', muscles:'三角肌+肱三头肌', steps:['坐直,双脚踩实地面','哑铃放在肩膀高度','掌心朝前','呼气,向上推举哑铃','手臂伸直但不锁死关节','吸气,控制下放','女生建议1-3kg哑铃'], svg:'<svg viewBox="0 0 100 140" class="exercise-svg"><circle cx="50" cy="25" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="35" x2="50" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="25" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="75" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="80" x2="35" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="80" x2="65" y2="120" stroke="#7c3aed" stroke-width="3"/><circle cx="25" cy="65" r="5" fill="#7c3aed"/><circle cx="75" cy="65" r="5" fill="#7c3aed"/><text x="50" y="135" text-anchor="middle" font-size="10" fill="#6b7280">哑铃推举</text></svg>'},
-      {name:'哑铃划船', desc:'美背训练 4组×12次/侧', detail:'单膝跪凳,同侧手支撑,另一手将哑铃拉至腰部', tips:'背部发力带动手臂,不要用手臂硬拉,顶峰收缩1秒', common:'用手臂发力、身体旋转、耸肩', muscles:'背阔肌+菱形肌+肱二头肌', steps:['左膝跪在凳子上','左手撑凳,背部平直','右手持哑铃自然下垂','呼气,背部发力拉向腰部','肘部贴近身体','顶峰停留1秒','吸气,控制下放'], svg:'<svg viewBox="0 0 120 100" class="exercise-svg"><line x1="20" y1="80" x2="100" y2="80" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="50" cy="35" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="43" x2="50" y2="65" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="30" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="70" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="65" x2="35" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="65" x2="65" y2="80" stroke="#7c3aed" stroke-width="3"/><circle cx="70" cy="50" r="4" fill="#7c3aed"/><text x="60" y="95" text-anchor="middle" font-size="10" fill="#6b7280">哑铃划船</text></svg>'},
-      {name:'侧平举', desc:'直角肩训练 4组×15次', detail:'站立微屈膝,哑铃从体侧抬至与肩同高', tips:'小重量即可,手臂微弯,感受肩部发力,不要甩', common:'重量太大、甩动手臂、耸肩', muscles:'三角肌中束', steps:['站立,双脚与肩同宽','双手持哑铃放体侧','手臂微弯','呼气,向两侧抬起哑铃','抬到与肩同高','顶峰停留1秒','吸气,控制下放','女生建议1-2kg哑铃'], svg:'<svg viewBox="0 0 100 120" class="exercise-svg"><circle cx="50" cy="25" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="35" x2="50" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="45" x2="20" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="45" x2="80" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="70" x2="35" y2="100" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="70" x2="65" y2="100" stroke="#7c3aed" stroke-width="3"/><circle cx="20" cy="30" r="4" fill="#7c3aed"/><circle cx="80" cy="30" r="4" fill="#7c3aed"/><text x="50" y="115" text-anchor="middle" font-size="10" fill="#6b7280">侧平举</text></svg>'},
-      {name:'卷腹', desc:'马甲线训练 3组×20次', detail:'仰卧屈膝,上半身卷起约30度,感受腹部收缩', tips:'下巴不要贴胸口,腰部贴地,呼气时卷起', common:'脖子用力、腰部离地、幅度太大', muscles:'腹直肌(上腹)', steps:['仰卧,双膝弯曲,脚掌贴地','双手放头两侧或交叉胸前','下巴微收','呼气,腹部发力卷起上身','肩膀离地约30度','感受腹部收紧','吸气,控制下放'], svg:'<svg viewBox="0 0 120 80" class="exercise-svg"><line x1="20" y1="60" x2="100" y2="60" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="35" cy="30" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="50" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="55" x2="70" y2="58" stroke="#7c3aed" stroke-width="3"/><line x1="70" y1="58" x2="85" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="25" y2="50" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="45" y2="50" stroke="#7c3aed" stroke-width="3"/><text x="60" y="75" text-anchor="middle" font-size="10" fill="#6b7280">卷腹</text></svg>'}
+      {name:'深蹲', desc:'下肢之王 4组×12次', detail:'双脚与肩同宽,下蹲至大腿平行地面', tips:'膝盖方向与脚尖一致,背部挺直,重心在脚后跟', common:'膝盖内扣、脚跟离地、弓背', muscles:'股四头肌+臀部+核心', video:'BV1xJ411z7Y9'},
+      {name:'臀桥', desc:'蜜桃臀必备 4组×15次', detail:'仰卧屈膝,臀部发力向上顶,顶峰停留2秒', tips:'下巴微收,不要用腰代偿,感受臀部发力', common:'腰过度弓起、脚离臀部太远', muscles:'臀大肌+腘绳肌', video:'BV1hJ411Y7X2'},
+      {name:'平板支撑', desc:'核心训练 3组×45-60秒', detail:'手肘撑地,身体成一条直线', tips:'收紧腹部和臀部,不要塌腰或撅臀,目视下方', common:'腰部塌陷、臀部过高、憋气', muscles:'核心+肩部+背部', video:'BV1i4411a7Pw'},
+      {name:'跪姿俯卧撑', desc:'上肢入门 3组×10次', detail:'膝盖着地,手比肩宽,身体下降至胸近地面', tips:'核心收紧,身体成直线,手肘与身体呈45度', common:'肘打太开、腰部塌陷、只做半程', muscles:'胸肌+肱三头肌+肩前束', video:'BV1kJ411Y7Qb'},
+      {name:'哑铃推举', desc:'肩部塑形 4组×12次', detail:'坐姿,哑铃从肩部推至头顶,手臂伸直但不锁死', tips:'核心收紧,不要借力后仰,小重量多次数', common:'用腰借力、哑铃相撞、耸肩', muscles:'三角肌+肱三头肌', video:'BV1sJ411Y7Xn'},
+      {name:'哑铃划船', desc:'美背训练 4组×12次/侧', detail:'单膝跪凳,同侧手支撑,另一手将哑铃拉至腰部', tips:'背部发力带动手臂,不要用手臂硬拉,顶峰收缩1秒', common:'用手臂发力、身体旋转、耸肩', muscles:'背阔肌+菱形肌+肱二头肌', video:'BV1wJ411Y7Lz'},
+      {name:'侧平举', desc:'直角肩训练 4组×15次', detail:'站立微屈膝,哑铃从体侧抬至与肩同高', tips:'小重量即可,手臂微弯,感受肩部发力,不要甩', common:'重量太大、甩动手臂、耸肩', muscles:'三角肌中束', video:'BV1tJ411Y7Mc'},
+      {name:'卷腹', desc:'马甲线训练 3组×20次', detail:'仰卧屈膝,上半身卷起约30度,感受腹部收缩', tips:'下巴不要贴胸口,腰部贴地,呼气时卷起', common:'脖子用力、腰部离地、幅度太大', muscles:'腹直肌(上腹)', video:'BV1oJ411Y7Xy'}
     ],
     weightRecords: [],
     // 自媒体
@@ -944,13 +917,32 @@ function loadData() {
       {title:'平替寻找', desc:'热门单品找平价替代,做"贵替vs平替"对比内容'},
       {title:'胶囊衣橱', desc:'参考胶囊衣橱概念,用少量单品搭出多套look,做挑战类视频'}
     ],
-    publishPlan: [],
-    works: [],
+    publishPlan: [
+      {id:1800001, title:'夏日通勤一周穿搭合集', date:'2026-07-28', done:false},
+      {id:1800002, title:'百元平价洗面奶横评', date:'2026-07-30', done:false},
+      {id:1800003, title:'OOTD | 周一简约黑白配', date:'2026-08-03', done:false},
+    ],
+    works: [
+      {id:1900001, title:'入职第一天穿搭vlog', platform:'小红书', date:'2026-07-20', data:'320赞 / 85收藏'},
+      {id:1900002, title:'平价好物开箱合集', platform:'抖音', date:'2026-07-23', data:'520赞 / 120收藏'},
+      {id:1900003, title:'周末休闲穿搭分享', platform:'小红书', date:'2026-07-26', data:'180赞 / 42收藏'},
+    ],
     // 理财
     financeGoal: '', financeMonthlyGoal: '',
-    budget: 0,
-    transactions: [],
-    investments: [],
+    budget: 3000,
+    transactions: [
+      {id:1700001, type:'income', amount:8000, category:'工资', note:'7月工资', date:'2026-07-15'},
+      {id:1700002, type:'expense', amount:1500, category:'住房', note:'房租', date:'2026-07-01'},
+      {id:1700003, type:'expense', amount:320, category:'餐饮', note:'超市采购', date:'2026-07-20'},
+      {id:1700004, type:'expense', amount:180, category:'交通', note:'地铁充值', date:'2026-07-18'},
+      {id:1700005, type:'expense', amount:450, category:'购物', note:'夏季连衣裙', date:'2026-07-22'},
+      {id:1700006, type:'income', amount:500, category:'副业', note:'自媒体广告', date:'2026-07-25'},
+      {id:1700007, type:'expense', amount:200, category:'娱乐', note:'电影+奶茶', date:'2026-07-26'},
+    ],
+    investments: [
+      {name:'沪深300定投', type:'基金定投', amount:2000, value:2150},
+      {name:'余额宝备用金', type:'货币基金', amount:5000, value:5035},
+    ],
     lessons: [
       {id:1, title:'第1步:建立记账习惯', desc:'理财第一步是知道钱花哪了', points:['下载记账App或用本工作台记录','坚持记账1个月','梳理消费结构,找出可优化项'], done:false},
       {id:2, title:'第2步:强制储蓄', desc:'先存后花,而非花完再存', points:['发工资当天先转10%-20%到储蓄账户','剩下的才是可支配的钱','坚持3个月养成习惯'], done:false},
@@ -1430,41 +1422,12 @@ function exerciseCardHtml(e, i, type) {
       <div class="exercise-row"><div class="label">💡 正确做法</div><div class="val">${escapeHtml(e.tips||'')}</div></div>
       <div class="exercise-row"><div class="label">⚠️ 常见错误</div><div class="val">${escapeHtml(e.common||'')}</div></div>
       <div class="exercise-row"><div class="label">🎯 目标肌群</div><div class="val">${escapeHtml(e.muscles||'')}</div></div>
-      ${e.steps ? `<div class="exercise-steps"><div style="font-size:12px;font-weight:600;color:var(--text-muted);margin:8px 0 4px">🦶 跟着做 (分步图解)</div>${e.steps.map((s,idx) => `<div class="step"><span class="step-num">${idx+1}</span><span>${escapeHtml(s)}</span></div>`).join('')}</div>` : ''}
-      ${e.svg ? `<div class="exercise-svg-container">${e.svg}</div>` : ''}
+      ${e.video ? `<div class="exercise-video"><div class="exercise-video-label">🎬 动作教学视频</div><div class="video-wrapper"><iframe src="https://player.bilibili.com/player.html?bvid=${escapeHtml(e.video)}&page=1&high_quality=1&autoplay=0" frameborder="0" allowfullscreen scrolling="no"></iframe></div></div>` : ''}
       <div style="margin-top:8px;text-align:right">
         <button class="btn-delete" onclick="event.stopPropagation();${delFn}(${i})">删除</button>
       </div>
     </div>
   </div>`;
-}
-function openVideoPopup(name, url) {
-  // 在当前页面弹出视频窗口
-  const bvid = url.split('/').pop();
-  let embedUrl = '';
-  if (url.includes('bilibili.com')) {
-    embedUrl = 'https://player.bilibili.com/player.html?bvid=' + bvid + '&page=1&high_quality=1';
-  } else {
-    embedUrl = url;
-  }
-  let popup = document.getElementById('videoPopup');
-  if (!popup) {
-    popup = document.createElement('div');
-    popup.id = 'videoPopup';
-    popup.className = 'video-popup';
-    popup.innerHTML = `<div class="video-popup-inner"><div class="video-popup-header"><span id="videoPopupTitle"></span><button class="video-popup-close" onclick="closeVideoPopup()">×</button></div><div id="videoPopupBody" style="position:relative;padding-bottom:56.25%;height:0"><iframe id="videoPopupIframe" style="position:absolute;top:0;left:0;width:100%;height:100%" frameborder="0" allowfullscreen></iframe></div></div>`;
-    document.body.appendChild(popup);
-  }
-  document.getElementById('videoPopupTitle').textContent = '🎬 ' + name;
-  document.getElementById('videoPopupIframe').src = embedUrl;
-  popup.classList.add('show');
-}
-function closeVideoPopup() {
-  const popup = document.getElementById('videoPopup');
-  if (popup) {
-    document.getElementById('videoPopupIframe').src = '';
-    popup.classList.remove('show');
-  }
 }
 function toggleExercise(type, i) {
   const card = document.getElementById('ex-' + type + '-' + i);
@@ -2112,6 +2075,38 @@ function renderAll(){
 document.getElementById('weightDate').value=todayStr();
 document.getElementById('txnDate').value=todayStr();
 updateTxnCats();
+
+// 自动初始化每日内容(首次使用自动填充)
+function autoInitDaily() {
+  const t = todayStr();
+  const dow = new Date().getDay();
+  // 英语: 每天5个单词自动加载
+  autoLoadWords();
+  // 英语每日任务(仅在没有任务时预置)
+  if (store.enTasks.filter(x => x.date === t).length === 0) {
+    const enDefaults = [
+      {text:'晨读英语短文10分钟', duration:10},
+      {text:'背今日5个单词', duration:15},
+      {text:'口语跟读练习', duration:10},
+    ];
+    enDefaults.forEach(e => store.enTasks.push({id: Date.now() + Math.random()*1000, text: e.text, duration: e.duration, done: false, date: t}));
+  }
+  // 健身每日任务(仅在没有任务时预置)
+  if (store.fitTasks.filter(x => x.date === t).length === 0 && dow !== 0 && dow !== 6) {
+    const plan = store.fitWeekPlan[dow] || '混合';
+    const fitDefaults = [];
+    if (plan === '有氧' || plan === '混合') fitDefaults.push({text:'有氧运动(跑步/跳绳/椭圆机)', duration:30});
+    if (plan === '无氧' || plan === '混合') fitDefaults.push({text:'无氧训练(深蹲+臀桥+卷腹)', duration:20});
+    fitDefaults.push({text:'拉伸放松', duration:5});
+    fitDefaults.forEach(f => store.fitTasks.push({id: Date.now() + Math.random()*1000, text: f.text, duration: f.duration, done: false, date: t}));
+  }
+  // 记账提醒(仅在没有今天记录时预置)
+  if (store.transactions.filter(x => x.date === t).length === 0 && store.transactions.length === 0) {
+    // 已经预置了示例数据，不重复添加
+  }
+}
+autoInitDaily();
+saveData();
 renderAll();
 </script>
 </body>
