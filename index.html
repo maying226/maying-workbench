@@ -238,11 +238,49 @@
   .exercise-video-link {
     display: inline-flex; align-items: center; gap: 4px;
     font-size: 12px; color: var(--primary); font-weight: 600;
-    text-decoration: none; padding: 4px 10px;
+    cursor: pointer; padding: 4px 10px;
     background: var(--primary-light); border-radius: 4px;
-    margin-top: 8px;
+    margin-top: 8px; border: none;
   }
   .exercise-video-link:hover { background: var(--primary); color: white; }
+  .exercise-steps { margin-top: 8px; }
+  .exercise-steps .step {
+    display: flex; align-items: flex-start; gap: 8px;
+    padding: 6px 0; font-size: 12px; color: var(--text);
+    border-bottom: 1px dashed var(--border);
+  }
+  .exercise-steps .step:last-child { border-bottom: none; }
+  .exercise-steps .step-num {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--primary-light); color: var(--primary-dark);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; flex-shrink: 0;
+  }
+  /* SVG动作图 */
+  .exercise-svg {
+    width: 100%; max-width: 280px; margin: 8px auto; display: block;
+  }
+  .exercise-svg-container {
+    text-align: center; padding: 8px; background: var(--bg); border-radius: 8px; margin: 8px 0;
+  }
+  .video-popup {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+    display: none; align-items: center; justify-content: center;
+    z-index: 300; padding: 20px;
+  }
+  .video-popup.show { display: flex; }
+  .video-popup-inner {
+    background: var(--card); border-radius: var(--radius);
+    width: 100%; max-width: 600px; overflow: hidden;
+  }
+  .video-popup-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 12px 16px; border-bottom: 1px solid var(--border);
+  }
+  .video-popup-close {
+    background: none; border: none; font-size: 24px; cursor: pointer;
+    color: var(--text-muted);
+  }
   .exercise-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
   .tag-cardio { background: #d1fae5; color: #047857; }
   .tag-strength { background: #fef3c7; color: #b45309; }
@@ -388,9 +426,9 @@
         <div class="stat-sub" id="streakSub">开始第一天</div>
       </div>
       <div class="stat-card green">
-        <div class="stat-label">📖 今日单词</div>
-        <div class="stat-value"><span id="todayWordCount">0</span><span class="unit">/5</span></div>
-        <div class="stat-sub" id="wordSub">每天5个单词</div>
+        <div class="stat-label">📖 累计单词</div>
+        <div class="stat-value"><span id="totalWords">0</span><span class="unit">个</span></div>
+        <div class="stat-sub" id="wordSub">本周学习 <span id="weekStudyDays">0</span> 天</div>
       </div>
       <div class="stat-card orange">
         <div class="stat-label">🏋️ 本周训练</div>
@@ -438,15 +476,11 @@
           <span>📖 今日单词 (每日5个)</span>
           <div style="display:flex;gap:6px;align-items:center">
             <span style="font-size:12px;color:var(--text-muted)" id="wordProgress">0/5</span>
-            <button class="btn btn-sm" onclick="importTodayWords()" id="importWordsBtn">一键导入5个</button>
+            <button class="btn btn-sm" onclick="startWordQuiz()" id="quizBtn">📝 复习测验</button>
           </div>
         </div>
         <div id="wordList"></div>
-        <div class="input-row">
-          <input type="text" class="input" id="wordEn" placeholder="或手动输入单词" onkeydown="if(event.key==='Enter')document.getElementById('wordZh').focus()">
-          <input type="text" class="input" id="wordZh" placeholder="中文释义" onkeydown="if(event.key==='Enter')addWord()">
-          <button class="btn" onclick="addWord()">添加</button>
-        </div>
+        <div style="font-size:11px;color:var(--text-muted);text-align:center;padding:8px">每天自动加载5个新单词,学完后可做复习测验</div>
       </div>
       <div class="card">
         <div class="card-title"><span>🗣️ 口语跟读练习</span><span style="font-size:11px;color:var(--text-muted)">我说你读,看你说得对不对</span></div>
@@ -508,6 +542,16 @@
         <span><span style="color:var(--primary)">●</span> 混合</span>
         <span><span style="color:var(--text-light)">●</span> 休息</span>
       </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📊 本周训练统计</span></div>
+      <div style="display:flex;justify-content:space-around;text-align:center;padding:12px 0">
+        <div><div style="font-size:24px;font-weight:700;color:var(--primary)" id="fitWeekDays">0</div><div style="font-size:11px;color:var(--text-muted)">运动天数</div></div>
+        <div><div style="font-size:24px;font-weight:700;color:var(--success)" id="fitWeekMinutes">0</div><div style="font-size:11px;color:var(--text-muted)">总时长(分钟)</div></div>
+        <div><div style="font-size:24px;font-weight:700;color:var(--warning)" id="fitWeekTasks">0</div><div style="font-size:11px;color:var(--text-muted)">完成项目</div></div>
+      </div>
+      <div style="padding:8px;background:var(--bg);border-radius:8px;font-size:12px;text-align:center;color:var(--text-muted)" id="fitWeekSuggestion"></div>
     </div>
 
     <div class="grid-2">
@@ -577,6 +621,25 @@
         以下是一些适合做二创(二次创作)的内容类型,你可以根据穿搭和好物方向进行翻拍、混剪、解说:
       </div>
       <div id="recutList"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📅 本月内容日历</span><span style="font-size:11px;color:var(--text-muted)">已发布/计划发布</span></div>
+      <div id="mediaCalendar" style="display:grid;grid-template-columns:repeat(7,1fr);gap:3px;font-size:10px;text-align:center"></div>
+      <div style="font-size:10px;color:var(--text-muted);text-align:center;margin-top:8px">
+        <span style="color:var(--success)">●</span> 已发布 &nbsp;
+        <span style="color:var(--warning)">●</span> 计划中
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📈 作品数据统计</span></div>
+      <div style="display:flex;justify-content:space-around;text-align:center;padding:12px 0">
+        <div><div style="font-size:24px;font-weight:700;color:var(--primary)" id="mediaTotalWorks">0</div><div style="font-size:11px;color:var(--text-muted)">总作品数</div></div>
+        <div><div style="font-size:24px;font-weight:700;color:var(--pink)" id="mediaTotalLikes">0</div><div style="font-size:11px;color:var(--text-muted)">总点赞</div></div>
+        <div><div style="font-size:24px;font-weight:700;color:var(--success)" id="mediaThisMonth">0</div><div style="font-size:11px;color:var(--text-muted)">本月发布</div></div>
+      </div>
+      <div id="mediaPlatformStats" style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:8px"></div>
     </div>
 
     <div class="grid-2">
@@ -657,6 +720,40 @@
         </select>
       </div>
       <div id="txnList"></div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span>⚠️ 预算提醒</span></div>
+        <div style="font-size:13px;line-height:2">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>本月预算</span><span style="font-weight:700" id="budgetTotal">¥--</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>已支出</span><span style="font-weight:700;color:var(--danger)" id="budgetSpent">¥0</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)">
+            <span>剩余</span><span style="font-weight:700;color:var(--success)" id="budgetRemain">¥--</span>
+          </div>
+          <div style="margin-top:8px">
+            <div class="progress-bar"><div class="progress-fill" id="budgetBar" style="width:0%"></div></div>
+            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;text-align:center" id="budgetLabel"></div>
+          </div>
+        </div>
+        <div class="input-row" style="margin-top:8px">
+          <input type="number" class="input" id="budgetInput" placeholder="设置月预算" step="0.01" min="0" onkeydown="if(event.key==='Enter')setBudget()">
+          <button class="btn btn-sm" onclick="setBudget()">设置</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>📈 投资追踪</span><button class="btn btn-secondary btn-sm" onclick="openInvestModal()">+ 记录</button></div>
+        <div id="investList"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>🏆 理财里程碑</span></div>
+      <div style="display:flex;gap:10px;overflow-x:auto;padding:8px 0" id="milestoneList"></div>
     </div>
   </div>
 
@@ -805,23 +902,23 @@ function loadData() {
     fitTasks: [],
     fitWeekPlan: ['休息','有氧','无氧','有氧','无氧','混合','休息'],
     cardioExercises: [
-      {name:'慢跑', desc:'30-40分钟 燃脂入门', detail:'热身5min→慢跑30min→拉伸5min', tips:'保持心率120-140,能说话但不能唱歌的程度', common:'脚跟先着地,不要弯腰驼背', muscles:'全身燃脂', video:'https://www.bilibili.com/video/BV1gJ411z7V6'},
-      {name:'跳绳', desc:'15-20分钟 高效燃脂', detail:'分组:跳1分钟+休息30秒×10组', tips:'脚尖落地,膝盖微屈缓冲,不要跳太高', common:'全脚掌落地容易伤膝盖', muscles:'全身+小腿+核心', video:'https://www.bilibili.com/video/BV1ab4y1S7fW'},
-      {name:'开合跳', desc:'5分钟热身/20分钟燃脂', detail:'手脚同时打开合拢,保持节奏', tips:'核心收紧,落地轻,呼吸配合动作', common:'手臂没伸直,落地太重', muscles:'全身+肩部+腿部', video:'https://www.bilibili.com/video/BV1rJ411v7pF'},
-      {name:'高抬腿', desc:'30秒×5组 爆发力训练', detail:'大腿抬到与地面平行,快速交替', tips:'摆臂配合抬腿节奏,核心收紧', common:'腿抬不够高,身体后仰', muscles:'腿部+核心+髋部', video:'https://www.bilibili.com/video/BV1QJ411Y7Lp'},
-      {name:'波比跳', desc:'10个×3组 全身燃脂', detail:'下蹲→俯卧撑→跳起,连贯完成', tips:'动作连贯比速度重要,初学者可去掉俯卧撑', common:'腰部塌陷,跳起不够高', muscles:'全身(胸+腿+核心)', video:'https://www.bilibili.com/video/BV1wJ411Y7kz'},
-      {name:'登山跑', desc:'30秒×4组 核心+燃脂', detail:'平板支撑姿势,膝盖交替靠近胸口', tips:'臀部不要翘太高,保持身体一条线', common:'臀部过高,速度不均匀', muscles:'核心+髋屈肌+肩部', video:'https://www.bilibili.com/video/BV1r7411n7RQ'},
-      {name:'椭圆机', desc:'30-40分钟 低冲击有氧', detail:'匀速踩踏,可加阻力,对膝盖友好', tips:'脚掌贴紧踏板,不要踮脚,手扶把手保持平衡', common:'身体晃动太大,速度忽快忽慢', muscles:'腿部+臀部', video:'https://www.bilibili.com/video/BV1v4411a7Lx'}
+      {name:'慢跑', desc:'30-40分钟 燃脂入门', detail:'热身5min→慢跑30min→拉伸5min', tips:'保持心率120-140,能说话但不能唱歌的程度', common:'脚跟先着地,不要弯腰驼背', muscles:'全身燃脂', steps:['先快走2-3分钟热身','开始慢跑,保持匀速','鼻子吸气,嘴巴呼气','脚掌中部先着地','跑完后慢走5分钟冷却','拉伸大腿前后侧各30秒'], video:'https://www.bilibili.com/video/BV1gJ411z7V6'},
+      {name:'跳绳', desc:'15-20分钟 高效燃脂', detail:'分组:跳1分钟+休息30秒×10组', tips:'脚尖落地,膝盖微屈缓冲,不要跳太高', common:'全脚掌落地容易伤膝盖', muscles:'全身+小腿+核心', steps:['选一根合适长度的跳绳','双手握柄,手腕发力摇绳','双脚并拢,脚尖着地','膝盖微弯缓冲冲击力','跳30秒休息15秒为一组','新手从5组开始逐渐加量'], video:'https://www.bilibili.com/video/BV1ab4y1S7fW'},
+      {name:'开合跳', desc:'5分钟热身/20分钟燃脂', detail:'手脚同时打开合拢,保持节奏', tips:'核心收紧,落地轻,呼吸配合动作', common:'手臂没伸直,落地太重', muscles:'全身+肩部+腿部', steps:['双脚并拢,双手放体侧','跳起时双脚打开与肩同宽','同时双手从体侧举过头顶','再跳回起始姿势','保持节奏,不要停顿','可以做30秒×5组'], video:'https://www.bilibili.com/video/BV1rJ411v7pF'},
+      {name:'高抬腿', desc:'30秒×5组 爆发力训练', detail:'大腿抬到与地面平行,快速交替', tips:'摆臂配合抬腿节奏,核心收紧', common:'腿抬不够高,身体后仰', muscles:'腿部+核心+髋部', steps:['原地站立,核心收紧','左膝抬到与地面平行','同时右臂前摆','快速交替左右腿','保持上身挺直不后仰','30秒一组,做5组'], video:'https://www.bilibili.com/video/BV1QJ411Y7Lp'},
+      {name:'波比跳', desc:'10个×3组 全身燃脂', detail:'下蹲→俯卧撑→跳起,连贯完成', tips:'动作连贯比速度重要,初学者可去掉俯卧撑', common:'腰部塌陷,跳起不够高', muscles:'全身(胸+腿+核心)', steps:['站立,双脚与肩同宽','下蹲,双手撑地','双脚向后跳出成平板支撑','做1个俯卧撑(初学者可跳过)','双脚跳回手旁','用力向上跳起,双手过头','落地后立即下一个'], video:'https://www.bilibili.com/video/BV1wJ411Y7kz'},
+      {name:'登山跑', desc:'30秒×4组 核心+燃脂', detail:'平板支撑姿势,膝盖交替靠近胸口', tips:'臀部不要翘太高,保持身体一条线', common:'臀部过高,速度不均匀', muscles:'核心+髋屈肌+肩部', steps:['双手撑地,呈平板支撑','核心收紧,身体成直线','左膝向胸口方向快速收','同时右腿向后蹬直','快速交替,像在爬山','保持臀部不抬高','30秒一组,做4组'], video:'https://www.bilibili.com/video/BV1r7411n7RQ'},
+      {name:'椭圆机', desc:'30-40分钟 低冲击有氧', detail:'匀速踩踏,可加阻力,对膝盖友好', tips:'脚掌贴紧踏板,不要踮脚,手扶把手保持平衡', common:'身体晃动太大,速度忽快忽慢', muscles:'腿部+臀部', steps:['调节合适阻力','双脚踩实踏板','双手握把手','匀速踩踏,保持节奏','上半身不要左右晃动','结束时逐渐降低速度'], video:'https://www.bilibili.com/video/BV1v4411a7Lx'}
     ],
     strengthExercises: [
-      {name:'深蹲', desc:'下肢之王 4组×12次', detail:'双脚与肩同宽,下蹲至大腿平行地面', tips:'膝盖方向与脚尖一致,背部挺直,重心在脚后跟', common:'膝盖内扣、脚跟离地、弓背', muscles:'股四头肌+臀部+核心', video:'https://www.bilibili.com/video/BV1wJ411Y7H8'},
-      {name:'臀桥', desc:'蜜桃臀必备 4组×15次', detail:'仰卧屈膝,臀部发力向上顶,顶峰停留2秒', tips:'下巴微收,不要用腰代偿,感受臀部发力', common:'腰过度弓起、脚离臀部太远', muscles:'臀大肌+腘绳肌', video:'https://www.bilibili.com/video/BV1zJ411Y7kP'},
-      {name:'平板支撑', desc:'核心训练 3组×45-60秒', detail:'手肘撑地,身体成一条直线', tips:'收紧腹部和臀部,不要塌腰或撅臀,目视下方', common:'腰部塌陷、臀部过高、憋气', muscles:'核心+肩部+背部', video:'https://www.bilibili.com/video/BV1sJ411v7mF'},
-      {name:'跪姿俯卧撑', desc:'上肢入门 3组×10次', detail:'膝盖着地,手比肩宽,身体下降至胸近地面', tips:'核心收紧,身体成直线,手肘与身体呈45度', common:'肘打太开、腰部塌陷、只做半程', muscles:'胸肌+肱三头肌+肩前束', video:'https://www.bilibili.com/video/BV1PJ411v7gR'},
-      {name:'哑铃推举', desc:'肩部塑形 4组×12次', detail:'坐姿,哑铃从肩部推至头顶,手臂伸直但不锁死', tips:'核心收紧,不要借力后仰,小重量多次数', common:'用腰借力、哑铃相撞、耸肩', muscles:'三角肌+肱三头肌', video:'https://www.bilibili.com/video/BV1dJ411e7kc'},
-      {name:'哑铃划船', desc:'美背训练 4组×12次/侧', detail:'单膝跪凳,同侧手支撑,另一手将哑铃拉至腰部', tips:'背部发力带动手臂,不要用手臂硬拉,顶峰收缩1秒', common:'用手臂发力、身体旋转、耸肩', muscles:'背阔肌+菱形肌+肱二头肌', video:'https://www.bilibili.com/video/BV1sJ411Y7fa'},
-      {name:'侧平举', desc:'直角肩训练 4组×15次', detail:'站立微屈膝,哑铃从体侧抬至与肩同高', tips:'小重量即可,手臂微弯,感受肩部发力,不要甩', common:'重量太大、甩动手臂、耸肩', muscles:'三角肌中束', video:'https://www.bilibili.com/video/BV1gJ411Y7uR'},
-      {name:'卷腹', desc:'马甲线训练 3组×20次', detail:'仰卧屈膝,上半身卷起约30度,感受腹部收缩', tips:'下巴不要贴胸口,腰部贴地,呼气时卷起', common:'脖子用力、腰部离地、幅度太大', muscles:'腹直肌(上腹)', video:'https://www.bilibili.com/video/BV1xJ411Y7gd'}
+      {name:'深蹲', desc:'下肢之王 4组×12次', detail:'双脚与肩同宽,下蹲至大腿平行地面', tips:'膝盖方向与脚尖一致,背部挺直,重心在脚后跟', common:'膝盖内扣、脚跟离地、弓背', muscles:'股四头肌+臀部+核心', steps:['双脚与肩同宽,脚尖微外八','双手前伸或交叉抱胸','吸气,臀部向后坐下蹲','蹲到大腿与地面平行','膝盖不要超过脚尖太多','呼气,用脚跟发力站起'], svg:'<svg viewBox="0 0 120 160" class="exercise-svg"><circle cx="60" cy="25" r="12" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="37" x2="60" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="50" x2="35" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="50" x2="85" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="80" x2="40" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="60" y1="80" x2="80" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="40" y1="120" x2="40" y2="150" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="120" x2="80" y2="150" stroke="#7c3aed" stroke-width="3"/><text x="60" y="155" text-anchor="middle" font-size="10" fill="#6b7280">深蹲姿势</text></svg>'},
+      {name:'臀桥', desc:'蜜桃臀必备 4组×15次', detail:'仰卧屈膝,臀部发力向上顶,顶峰停留2秒', tips:'下巴微收,不要用腰代偿,感受臀部发力', common:'腰过度弓起、脚离臀部太远', muscles:'臀大肌+腘绳肌', steps:['仰卧,双膝弯曲,脚掌贴地','双脚与臀同宽','手臂放身体两侧','呼气,臀部向上抬起','身体从肩到膝成直线','顶峰收紧臀部2秒','吸气,慢慢放下'], svg:'<svg viewBox="0 0 120 100" class="exercise-svg"><line x1="20" y1="80" x2="100" y2="80" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="30" cy="55" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="65" x2="30" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="72" x2="15" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="72" x2="45" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="65" x2="70" y2="50" stroke="#7c3aed" stroke-width="3"/><line x1="70" y1="50" x2="100" y2="55" stroke="#7c3aed" stroke-width="3"/><text x="60" y="95" text-anchor="middle" font-size="10" fill="#6b7280">臀桥姿势</text></svg>'},
+      {name:'平板支撑', desc:'核心训练 3组×45-60秒', detail:'手肘撑地,身体成一条直线', tips:'收紧腹部和臀部,不要塌腰或撅臀,目视下方', common:'腰部塌陷、臀部过高、憋气', muscles:'核心+肩部+背部', steps:['俯卧,双肘弯曲撑地','肘在肩正下方','双脚并拢,脚尖着地','收紧腹部和臀部','身体从头到脚跟成直线','保持均匀呼吸','坚持30-60秒'], svg:'<svg viewBox="0 0 140 80" class="exercise-svg"><line x1="20" y1="60" x2="120" y2="60" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="30" cy="35" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="43" x2="30" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="50" x2="15" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="50" x2="45" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="30" y1="43" x2="90" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="90" y1="35" x2="120" y2="40" stroke="#7c3aed" stroke-width="3"/><line x1="90" y1="35" x2="120" y2="30" stroke="#7c3aed" stroke-width="3"/><text x="70" y="75" text-anchor="middle" font-size="10" fill="#6b7280">平板支撑</text></svg>'},
+      {name:'跪姿俯卧撑', desc:'上肢入门 3组×10次', detail:'膝盖着地,手比肩宽,身体下降至胸近地面', tips:'核心收紧,身体成直线,手肘与身体呈45度', common:'肘打太开、腰部塌陷、只做半程', muscles:'胸肌+肱三头肌+肩前束', steps:['双膝着地,脚踝交叉','双手比肩稍宽撑地','身体从膝到肩成直线','吸气,弯曲手肘下降','胸部接近地面但不触地','呼气,推回起始位置','保持核心收紧不塌腰'], svg:'<svg viewBox="0 0 140 90" class="exercise-svg"><line x1="20" y1="70" x2="120" y2="70" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="35" cy="30" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="35" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="45" x2="20" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="45" x2="50" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="55" x2="80" y2="65" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="65" x2="100" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="80" y1="65" x2="100" y2="60" stroke="#7c3aed" stroke-width="3"/><text x="70" y="85" text-anchor="middle" font-size="10" fill="#6b7280">跪姿俯卧撑</text></svg>'},
+      {name:'哑铃推举', desc:'肩部塑形 4组×12次', detail:'坐姿,哑铃从肩部推至头顶,手臂伸直但不锁死', tips:'核心收紧,不要借力后仰,小重量多次数', common:'用腰借力、哑铃相撞、耸肩', muscles:'三角肌+肱三头肌', steps:['坐直,双脚踩实地面','哑铃放在肩膀高度','掌心朝前','呼气,向上推举哑铃','手臂伸直但不锁死关节','吸气,控制下放','女生建议1-3kg哑铃'], svg:'<svg viewBox="0 0 100 140" class="exercise-svg"><circle cx="50" cy="25" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="35" x2="50" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="25" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="75" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="80" x2="35" y2="120" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="80" x2="65" y2="120" stroke="#7c3aed" stroke-width="3"/><circle cx="25" cy="65" r="5" fill="#7c3aed"/><circle cx="75" cy="65" r="5" fill="#7c3aed"/><text x="50" y="135" text-anchor="middle" font-size="10" fill="#6b7280">哑铃推举</text></svg>'},
+      {name:'哑铃划船', desc:'美背训练 4组×12次/侧', detail:'单膝跪凳,同侧手支撑,另一手将哑铃拉至腰部', tips:'背部发力带动手臂,不要用手臂硬拉,顶峰收缩1秒', common:'用手臂发力、身体旋转、耸肩', muscles:'背阔肌+菱形肌+肱二头肌', steps:['左膝跪在凳子上','左手撑凳,背部平直','右手持哑铃自然下垂','呼气,背部发力拉向腰部','肘部贴近身体','顶峰停留1秒','吸气,控制下放'], svg:'<svg viewBox="0 0 120 100" class="exercise-svg"><line x1="20" y1="80" x2="100" y2="80" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="50" cy="35" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="43" x2="50" y2="65" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="30" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="50" x2="70" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="65" x2="35" y2="80" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="65" x2="65" y2="80" stroke="#7c3aed" stroke-width="3"/><circle cx="70" cy="50" r="4" fill="#7c3aed"/><text x="60" y="95" text-anchor="middle" font-size="10" fill="#6b7280">哑铃划船</text></svg>'},
+      {name:'侧平举', desc:'直角肩训练 4组×15次', detail:'站立微屈膝,哑铃从体侧抬至与肩同高', tips:'小重量即可,手臂微弯,感受肩部发力,不要甩', common:'重量太大、甩动手臂、耸肩', muscles:'三角肌中束', steps:['站立,双脚与肩同宽','双手持哑铃放体侧','手臂微弯','呼气,向两侧抬起哑铃','抬到与肩同高','顶峰停留1秒','吸气,控制下放','女生建议1-2kg哑铃'], svg:'<svg viewBox="0 0 100 120" class="exercise-svg"><circle cx="50" cy="25" r="10" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="35" x2="50" y2="70" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="45" x2="20" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="45" x2="80" y2="35" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="70" x2="35" y2="100" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="70" x2="65" y2="100" stroke="#7c3aed" stroke-width="3"/><circle cx="20" cy="30" r="4" fill="#7c3aed"/><circle cx="80" cy="30" r="4" fill="#7c3aed"/><text x="50" y="115" text-anchor="middle" font-size="10" fill="#6b7280">侧平举</text></svg>'},
+      {name:'卷腹', desc:'马甲线训练 3组×20次', detail:'仰卧屈膝,上半身卷起约30度,感受腹部收缩', tips:'下巴不要贴胸口,腰部贴地,呼气时卷起', common:'脖子用力、腰部离地、幅度太大', muscles:'腹直肌(上腹)', steps:['仰卧,双膝弯曲,脚掌贴地','双手放头两侧或交叉胸前','下巴微收','呼气,腹部发力卷起上身','肩膀离地约30度','感受腹部收紧','吸气,控制下放'], svg:'<svg viewBox="0 0 120 80" class="exercise-svg"><line x1="20" y1="60" x2="100" y2="60" stroke="#e5e7eb" stroke-width="2" stroke-dasharray="4"/><circle cx="35" cy="30" r="8" fill="none" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="50" y2="55" stroke="#7c3aed" stroke-width="3"/><line x1="50" y1="55" x2="70" y2="58" stroke="#7c3aed" stroke-width="3"/><line x1="70" y1="58" x2="85" y2="60" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="25" y2="50" stroke="#7c3aed" stroke-width="3"/><line x1="35" y1="38" x2="45" y2="50" stroke="#7c3aed" stroke-width="3"/><text x="60" y="75" text-anchor="middle" font-size="10" fill="#6b7280">卷腹</text></svg>'}
     ],
     weightRecords: [],
     // 自媒体
@@ -851,7 +948,9 @@ function loadData() {
     works: [],
     // 理财
     financeGoal: '', financeMonthlyGoal: '',
+    budget: 0,
     transactions: [],
+    investments: [],
     lessons: [
       {id:1, title:'第1步:建立记账习惯', desc:'理财第一步是知道钱花哪了', points:['下载记账App或用本工作台记录','坚持记账1个月','梳理消费结构,找出可优化项'], done:false},
       {id:2, title:'第2步:强制储蓄', desc:'先存后花,而非花完再存', points:['发工资当天先转10%-20%到储蓄账户','剩下的才是可支配的钱','坚持3个月养成习惯'], done:false},
@@ -913,6 +1012,74 @@ function speak(text, rate) {
   u.rate = rate || 0.8;
   if (synthVoices.length > 0) u.voice = synthVoices[0];
   speechSynthesis.speak(u);
+}
+
+// 自动加载今日单词(无需手动导入)
+function autoLoadWords() {
+  const todayWords = store.words.filter(w => w.date === todayStr());
+  if (todayWords.length >= 5) return; // 今天已经满5个
+  const need = 5 - todayWords.length;
+  const learnedSet = new Set(store.words.map(w => w.en));
+  const pool = store.wordLibrary.filter(w => !learnedSet.has(w.en));
+  if (pool.length === 0) return;
+  let added = 0;
+  for (let i = 0; i < need && i < pool.length; i++) {
+    const w = pool[i];
+    store.words.push({id: Date.now() + added, en: w.en, zh: w.zh, phonetic: w.phonetic || '', mastery: 0, date: todayStr()});
+    added++;
+  }
+  if (added > 0) saveData();
+}
+
+// 单词复习测验
+let quizState = {mode:'', words:[], current:0, score:0, total:0};
+function startWordQuiz() {
+  const todayWords = store.words.filter(w => w.date === todayStr());
+  const allWords = todayWords.length >= 3 ? todayWords : store.words.slice(-5);
+  if (allWords.length === 0) { toast('还没有单词可以复习'); return; }
+  const mode = Math.random() > 0.5 ? 'en2zh' : 'zh2en';
+  quizState = {mode, words: allWords.sort(() => Math.random() - 0.5), current: 0, score: 0, total: allWords.length};
+  showQuizQuestion();
+}
+function showQuizQuestion() {
+  const q = quizState;
+  if (q.current >= q.total) {
+    showModal('📝 测验结果', `<div style="text-align:center;font-size:40px;margin:16px 0">${q.score}/${q.total}</div><div style="text-align:center;color:var(--text-muted)">正确率: ${Math.round(q.score/q.total*100)}%</div><div style="text-align:center;margin-top:8px">${q.score>=q.total*0.8?'🎉 很棒!':'💪 继续加油!'}</div>`);
+    return;
+  }
+  const w = q.words[q.current];
+  const question = q.mode === 'en2zh' ? `"${w.en}" 的中文意思是?` : `"${w.zh}" 的英文是?`;
+  const answer = q.mode === 'en2zh' ? w.zh : w.en;
+  const options = generateOptions(w, q.mode);
+  let html = `<div style="font-size:20px;font-weight:700;text-align:center;margin:16px 0">${question}</div>`;
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">`;
+  options.forEach(opt => {
+    html += `<button class="btn btn-secondary" style="padding:12px;font-size:14px" onclick="checkQuizAnswer('${escapeHtml(opt).replace(/'/g,"\\'")}','${escapeHtml(answer).replace(/'/g,"\\'")}')">${escapeHtml(opt)}</button>`;
+  });
+  html += `</div>`;
+  html += `<div style="text-align:center;font-size:12px;color:var(--text-muted);margin-top:12px">第 ${q.current+1}/${q.total} 题</div>`;
+  showModal('📝 单词测验', html);
+}
+function generateOptions(word, mode) {
+  const allWords = store.words.filter(w => w.en !== word.en);
+  const shuffled = allWords.sort(() => Math.random() - 0.5);
+  const correct = mode === 'en2zh' ? word.zh : word.en;
+  let options = [correct];
+  for (let i = 0; i < shuffled.length && options.length < 4; i++) {
+    const val = mode === 'en2zh' ? shuffled[i].zh : shuffled[i].en;
+    if (!options.includes(val)) options.push(val);
+  }
+  return options.sort(() => Math.random() - 0.5);
+}
+function checkQuizAnswer(chosen, answer) {
+  if (chosen === answer) {
+    quizState.score++;
+    toast('✅ 正确!');
+  } else {
+    toast('❌ 正确答案: ' + answer);
+  }
+  quizState.current++;
+  setTimeout(showQuizQuestion, 800);
 }
 
 // 口语跟读 - 语音识别
@@ -1020,32 +1187,6 @@ function renderSpeakPractice() {
   el.innerHTML += '<div class="speak-practice-hint" style="padding:12px">💡 先点 <b>🔊</b> 听标准发音,再点 <b>🎤 跟读</b> 自己读一遍</div>';
 }
 
-function importTodayWords() {
-  const todayWords = store.words.filter(w => w.date === todayStr());
-  const need = 5 - todayWords.length;
-  if (need <= 0) { toast('今日5个单词已满,先复习吧!'); return; }
-  const learnedSet = new Set(store.words.map(w => w.en));
-  const pool = store.wordLibrary.filter(w => !learnedSet.has(w.en));
-  if (pool.length === 0) { toast('单词库已全部学完!可在库里复习'); store.wordLibraryIndex = 0; saveData(); return; }
-  let imported = 0;
-  for (let i = 0; i < need && i < pool.length; i++) {
-    const w = pool[i];
-    store.words.push({id: Date.now() + imported, en: w.en, zh: w.zh, phonetic: w.phonetic || '', mastery: 0, date: todayStr()});
-    imported++;
-  }
-  saveData(); renderWords(); renderWordLibrary(); renderDashboard();
-  toast(`已导入${imported}个新单词`);
-}
-
-function importSingleWord(en, zh, phonetic, level) {
-  const todayWords = store.words.filter(w => w.date === todayStr());
-  if (todayWords.length >= 5) { toast('今日5个已满,先复习!'); return; }
-  if (store.words.some(w => w.en === en)) { toast('这个词已学过'); return; }
-  store.words.push({id: Date.now(), en, zh, phonetic: phonetic || '', mastery: 0, date: todayStr()});
-  saveData(); renderWords(); renderWordLibrary(); renderDashboard();
-  toast(`已导入: ${en}`);
-}
-
 function renderWordLibrary() {
   const el = document.getElementById('wordLibrary');
   const level = document.getElementById('wordLevel').value || 'all';
@@ -1065,11 +1206,18 @@ function renderWordLibrary() {
         <div class="word-zh">${escapeHtml(w.zh)}</div>
       </div>
       <span style="font-size:10px;padding:2px 6px;border-radius:3px;background:${levelColors[w.level]}20;color:${levelColors[w.level]}">${levelNames[w.level]}</span>
-      ${learned ? '<span style="font-size:11px;color:var(--success)">✓ 已学</span>' : `<button class="btn btn-sm" style="padding:3px 8px;font-size:11px" onclick="importSingleWord('${escapeHtml(w.en)}','${escapeHtml(w.zh).replace(/'/g,"\\'")}','${escapeHtml(w.phonetic||'').replace(/'/g,"\\'")}','${w.level}')">导入</button>`}
+      ${learned ? '<span style="font-size:11px;color:var(--success)">✓ 已学</span>' : `<button class="btn btn-sm" style="padding:3px 8px;font-size:11px" onclick="addWordFromLib('${escapeHtml(w.en)}','${escapeHtml(w.zh).replace(/'/g,"\\'")}','${escapeHtml(w.phonetic||'').replace(/'/g,"\\'")}')">+ 加入学习</button>`}
     </div>`;
   }).join('');
 }
 
+function addWordFromLib(en, zh, phonetic) {
+  const already = store.words.find(w => w.en === en);
+  if (already) { toast('该单词已在学习列表中'); return; }
+  store.words.push({id: Date.now(), en, zh, phonetic: phonetic || '', mastery: 0, date: todayStr()});
+  saveData(); renderWordLibrary(); renderWords(); renderSpeakPractice(); renderDashboard();
+  toast('✅ ' + en + ' 已加入学习');
+}
 function addWord() {
   const en = document.getElementById('wordEn').value.trim();
   const zh = document.getElementById('wordZh').value.trim();
@@ -1083,12 +1231,16 @@ function addWord() {
 function setMastery(id, level) { const w = store.words.find(x => x.id === id); if (w) { w.mastery = level; saveData(); renderWords(); } }
 function delWord(id) { store.words = store.words.filter(x => x.id !== id); saveData(); renderWords(); renderDashboard(); }
 function renderWords() {
+  autoLoadWords(); // 自动加载今日单词
   const el = document.getElementById('wordList');
   const todayWords = store.words.filter(w => w.date === todayStr());
   document.getElementById('wordProgress').textContent = `${todayWords.length}/5`;
-  if (store.words.length === 0) { el.innerHTML = '<div class="empty-state">还没有单词,点击右上角"一键导入5个"开始</div>'; return; }
-  el.innerHTML = todayWords.length > 0 ? todayWords.map(w => wordHtml(w)).join('') :
-    '<div class="empty-state">今天还没背单词,点"一键导入5个"开始</div>';
+  if (todayWords.length === 0) {
+    // 尝试自动加载
+    el.innerHTML = '<div class="empty-state">正在加载今日单词...</div>';
+    return;
+  }
+  el.innerHTML = todayWords.map(w => wordHtml(w)).join('');
 }
 function wordHtml(w) {
   return `<div class="word-card">
@@ -1179,10 +1331,10 @@ function addFitTask() {
   store.fitTasks.push({id: Date.now(), text, duration: dur, done: false, date: todayStr()});
   document.getElementById('fitTaskInput').value = '';
   document.getElementById('fitTaskDur').value = '';
-  saveData(); renderFitTasks(); renderDashboard();
+  saveData(); renderFitTasks(); renderFitStats(); renderDashboard();
   toast('已添加训练');
 }
-function toggleFitTask(id) { const t = store.fitTasks.find(x => x.id === id); if (t) { t.done = !t.done; updateCheckin(); saveData(); renderFitTasks(); renderDashboard(); } }
+function toggleFitTask(id) { const t = store.fitTasks.find(x => x.id === id); if (t) { t.done = !t.done; updateCheckin(); saveData(); renderFitTasks(); renderFitStats(); renderDashboard(); } }
 function delFitTask(id) { store.fitTasks = store.fitTasks.filter(x => x.id !== id); saveData(); renderFitTasks(); renderDashboard(); }
 function renderFitTasks() {
   const el = document.getElementById('fitTaskList');
@@ -1194,6 +1346,40 @@ function renderFitTasks() {
       <div class="task-content"><span class="task-text ${t.done?'done':''}">${escapeHtml(t.text)}</span>${t.duration?`<span class="task-tag">${t.duration}min</span>`:''}</div>
       <button class="btn-delete" onclick="delFitTask(${t.id})">×</button>
     </div>`).join('');
+}
+
+function renderFitStats() {
+  const now = new Date();
+  // 本周训练统计
+  let weekDays = 0, weekMin = 0, weekDone = 0;
+  const ws = new Date(now); ws.setDate(now.getDate() - now.getDay());
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(ws); d.setDate(d.getDate() + i);
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const dayTasks = store.fitTasks.filter(t => t.date === ds);
+    const dayDone = dayTasks.filter(t => t.done);
+    if (dayDone.length > 0) weekDays++;
+    dayDone.forEach(t => { weekMin += (t.duration || 0); weekDone++; });
+  }
+  document.getElementById('fitWeekDays').textContent = weekDays;
+  document.getElementById('fitWeekMinutes').textContent = weekMin;
+  document.getElementById('fitWeekTasks').textContent = weekDone;
+
+  // 每日建议
+  let suggestion = '';
+  const todayDS = todayStr();
+  const todayFitTasks = store.fitTasks.filter(t => t.date === todayDS);
+  const todayDone = todayFitTasks.filter(t => t.done);
+  if (todayFitTasks.length === 0) {
+    const dow = now.getDay();
+    const plan = ['休息日 ♨️','有氧日 🏃','无氧日 🏋️','有氧日 🏃','无氧日 🏋️','混合日 🔥','休息日 ♨️'];
+    suggestion = `💡 今天是<b>${plan[dow]}</b>，记得添加训练项目开始打卡哦`;
+  } else if (todayDone.length === todayFitTasks.length && todayFitTasks.length > 0) {
+    suggestion = '🎉 今天的训练全部完成了!太棒了!记得补充蛋白质';
+  } else {
+    suggestion = `⏳ 还有 <b>${todayFitTasks.length - todayDone.length}</b> 项待完成，继续加油!`;
+  }
+  document.getElementById('fitWeekSuggestion').innerHTML = suggestion;
 }
 
 function renderFitWeekPlan() {
@@ -1244,12 +1430,41 @@ function exerciseCardHtml(e, i, type) {
       <div class="exercise-row"><div class="label">💡 正确做法</div><div class="val">${escapeHtml(e.tips||'')}</div></div>
       <div class="exercise-row"><div class="label">⚠️ 常见错误</div><div class="val">${escapeHtml(e.common||'')}</div></div>
       <div class="exercise-row"><div class="label">🎯 目标肌群</div><div class="val">${escapeHtml(e.muscles||'')}</div></div>
-      ${e.video ? `<a href="${e.video}" target="_blank" class="exercise-video-link" onclick="event.stopPropagation()">▶️ 观看教学视频</a>` : ''}
+      ${e.steps ? `<div class="exercise-steps"><div style="font-size:12px;font-weight:600;color:var(--text-muted);margin:8px 0 4px">🦶 跟着做 (分步图解)</div>${e.steps.map((s,idx) => `<div class="step"><span class="step-num">${idx+1}</span><span>${escapeHtml(s)}</span></div>`).join('')}</div>` : ''}
+      ${e.svg ? `<div class="exercise-svg-container">${e.svg}</div>` : ''}
       <div style="margin-top:8px;text-align:right">
         <button class="btn-delete" onclick="event.stopPropagation();${delFn}(${i})">删除</button>
       </div>
     </div>
   </div>`;
+}
+function openVideoPopup(name, url) {
+  // 在当前页面弹出视频窗口
+  const bvid = url.split('/').pop();
+  let embedUrl = '';
+  if (url.includes('bilibili.com')) {
+    embedUrl = 'https://player.bilibili.com/player.html?bvid=' + bvid + '&page=1&high_quality=1';
+  } else {
+    embedUrl = url;
+  }
+  let popup = document.getElementById('videoPopup');
+  if (!popup) {
+    popup = document.createElement('div');
+    popup.id = 'videoPopup';
+    popup.className = 'video-popup';
+    popup.innerHTML = `<div class="video-popup-inner"><div class="video-popup-header"><span id="videoPopupTitle"></span><button class="video-popup-close" onclick="closeVideoPopup()">×</button></div><div id="videoPopupBody" style="position:relative;padding-bottom:56.25%;height:0"><iframe id="videoPopupIframe" style="position:absolute;top:0;left:0;width:100%;height:100%" frameborder="0" allowfullscreen></iframe></div></div>`;
+    document.body.appendChild(popup);
+  }
+  document.getElementById('videoPopupTitle').textContent = '🎬 ' + name;
+  document.getElementById('videoPopupIframe').src = embedUrl;
+  popup.classList.add('show');
+}
+function closeVideoPopup() {
+  const popup = document.getElementById('videoPopup');
+  if (popup) {
+    document.getElementById('videoPopupIframe').src = '';
+    popup.classList.remove('show');
+  }
 }
 function toggleExercise(type, i) {
   const card = document.getElementById('ex-' + type + '-' + i);
@@ -1476,10 +1691,10 @@ function saveWork() {
   const title = document.getElementById('workTitle').value.trim();
   if (!title) { toast('请输入标题'); return; }
   store.works.push({id: Date.now(), title, platform: document.getElementById('workPlatform').value, date: document.getElementById('workDate').value, data: document.getElementById('workData').value.trim()});
-  saveData(); closeWorkModal(); renderWorks();
+  saveData(); closeWorkModal(); renderWorks(); renderMediaStats(); renderMediaCalendar();
   toast('作品已记录');
 }
-function delWork(id) { store.works = store.works.filter(x => x.id !== id); saveData(); renderWorks(); }
+function delWork(id) { store.works = store.works.filter(x => x.id !== id); saveData(); renderWorks(); renderMediaStats(); renderMediaCalendar(); }
 function renderWorks() {
   const el = document.getElementById('workList');
   const sorted = store.works.slice().sort((a,b) => b.date.localeCompare(a.date));
@@ -1489,6 +1704,76 @@ function renderWorks() {
       <div style="flex:1"><div style="font-weight:600">${escapeHtml(w.title)}</div><div style="font-size:11px;color:var(--text-muted)"><span class="badge b-media">${escapeHtml(w.platform)}</span> ${w.date} ${w.data?'· '+escapeHtml(w.data):''}</div></div>
       <button class="btn-delete" onclick="delWork(${w.id})">×</button>
     </div>`).join('');
+}
+
+function renderMediaStats() {
+  const works = store.works;
+  document.getElementById('mediaTotalWorks').textContent = works.length;
+  // 解析数据中的赞藏数
+  let totalLikes = 0;
+  works.forEach(w => {
+    if (w.data) {
+      const likeMatch = w.data.match(/(\d+)\s*赞/);
+      if (likeMatch) totalLikes += parseInt(likeMatch[1]);
+      // 也匹配 "赞" 在数字后面
+      const likeMatch2 = w.data.match(/赞\s*(\d+)/);
+      if (likeMatch2) totalLikes += parseInt(likeMatch2[1]);
+    }
+  });
+  document.getElementById('mediaTotalLikes').textContent = totalLikes;
+  // 本月发布
+  const now = new Date();
+  const monthPrefix = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const thisMonth = works.filter(w => w.date.startsWith(monthPrefix));
+  document.getElementById('mediaThisMonth').textContent = thisMonth.length;
+
+  // 平台分布统计
+  const platformCount = {};
+  works.forEach(w => { platformCount[w.platform] = (platformCount[w.platform] || 0) + 1; });
+  const platformColors = {'小红书':'#ff2442','抖音':'#000','B站':'#fb7299','视频号':'#07c160','微博':'#e6162d','其他':'#7c3aed'};
+  const platformEl = document.getElementById('mediaPlatformStats');
+  if (Object.keys(platformCount).length === 0) {
+    platformEl.innerHTML = '<span style="font-size:11px;color:var(--text-muted)">暂无数据</span>';
+  } else {
+    platformEl.innerHTML = Object.entries(platformCount).map(([p, c]) =>
+      `<span style="font-size:11px;padding:2px 8px;border-radius:10px;background:${(platformColors[p]||'#7c3aed')}15;color:${platformColors[p]||'#7c3aed'};font-weight:500">${p}: ${c}篇</span>`
+    ).join('');
+  }
+}
+
+function renderMediaCalendar() {
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const days = new Date(y, m+1, 0).getDate();
+  const first = new Date(y, m, 1).getDay();
+  const monthPrefix = `${y}-${String(m+1).padStart(2,'0')}`;
+  const wdLabels = ['日','一','二','三','四','五','六'];
+
+  // 收集本月所有媒体事件
+  const events = {};
+  store.works.forEach(w => {
+    if (w.date.startsWith(monthPrefix)) {
+      events[w.date] = (events[w.date] || 0) + 1;
+    }
+  });
+  store.publishPlan.forEach(p => {
+    if (p.date.startsWith(monthPrefix)) {
+      events[p.date] = events[p.date] || 0;
+    }
+  });
+
+  let html = wdLabels.map(d => `<div style="color:var(--text-muted);font-weight:600">${d}</div>`).join('');
+  for (let i = 0; i < first; i++) html += '<div></div>';
+  for (let d = 1; d <= days; d++) {
+    const ds = `${monthPrefix}-${String(d).padStart(2,'0')}`;
+    const hasPub = store.works.some(w => w.date === ds);
+    const hasPlan = store.publishPlan.some(p => p.date === ds);
+    let bg = '', dot = '';
+    if (hasPub) { bg = 'background:#10b98120;'; dot = 'color:#10b981;'; }
+    else if (hasPlan) { bg = 'background:#f59e0b20;'; dot = 'color:#f59e0b;'; }
+    html += `<div style="padding:2px;border-radius:3px;${bg}"><div style="font-weight:${hasPub||hasPlan?'700':'400'};${dot}">${d}</div>${hasPub?'<div style="font-size:7px;color:#10b981">✓</div>':hasPlan?'<div style="font-size:7px;color:#f59e0b">📝</div>':''}</div>`;
+  }
+  document.getElementById('mediaCalendar').innerHTML = html;
 }
 
 // ========== 理财 ==========
@@ -1565,6 +1850,133 @@ function renderFinance() {
   document.getElementById('financeGoal').textContent = store.financeGoal || '点击设置目标 (如:年储蓄3万)';
   document.getElementById('financeMonthlyGoal').textContent = store.financeMonthlyGoal || '--';
   renderFinanceSummary(); renderTxns(); renderLessons();
+  renderBudget(); renderInvestments(); renderMilestones();
+}
+
+// 预算管理
+function setBudget() {
+  const val = parseFloat(document.getElementById('budgetInput').value);
+  if (!val || val <= 0) { toast('请输入有效预算金额'); return; }
+  store.budget = val;
+  document.getElementById('budgetInput').value = '';
+  saveData(); renderBudget();
+  toast('月预算已设置为 ¥' + val.toFixed(2));
+}
+function renderBudget() {
+  const budget = store.budget || 0;
+  const now = new Date();
+  const mt = getMonthTxns(now.getFullYear(), now.getMonth());
+  let spent = 0;
+  mt.forEach(t => { if (t.type === 'expense') spent += t.amount; });
+  document.getElementById('budgetTotal').textContent = budget > 0 ? '¥' + budget.toFixed(2) : '未设置';
+  document.getElementById('budgetSpent').textContent = '¥' + spent.toFixed(2);
+  const remain = budget - spent;
+  document.getElementById('budgetRemain').textContent = budget > 0 ? '¥' + remain.toFixed(2) : '--';
+  const pct = budget > 0 ? Math.min(spent / budget * 100, 100) : 0;
+  document.getElementById('budgetBar').style.width = pct + '%';
+  if (budget > 0) {
+    if (pct >= 100) {
+      document.getElementById('budgetBar').style.background = 'var(--danger)';
+      document.getElementById('budgetLabel').textContent = '⚠️ 已超预算!';
+    } else if (pct >= 80) {
+      document.getElementById('budgetBar').style.background = 'var(--warning)';
+      document.getElementById('budgetLabel').textContent = '⚡ 预算紧张,注意控制';
+    } else if (pct >= 50) {
+      document.getElementById('budgetBar').style.background = 'var(--primary)';
+      document.getElementById('budgetLabel').textContent = '预算使用正常';
+    } else {
+      document.getElementById('budgetBar').style.background = 'var(--success)';
+      document.getElementById('budgetLabel').textContent = '👍 预算充裕';
+    }
+  }
+}
+
+// 投资追踪
+function openInvestModal() {
+  let modal = document.getElementById('investModal');
+  if (!modal) {
+    const div = document.createElement('div');
+    div.className = 'modal-bg';
+    div.id = 'investModal';
+    div.innerHTML = `<div class="modal" onclick="event.stopPropagation()">
+      <div class="modal-title">添加投资记录</div>
+      <div class="form-group"><label class="form-label">投资名称</label><input type="text" class="input" id="investName" placeholder="如:沪深300定投"></div>
+      <div class="form-group"><label class="form-label">类型</label><select class="input" id="investType"><option>基金定投</option><option>股票</option><option>银行理财</option><option>货币基金</option><option>保险</option><option>其他</option></select></div>
+      <div class="form-group"><label class="form-label">投入金额</label><input type="number" class="input" id="investAmount" placeholder="累计投入" step="0.01" min="0"></div>
+      <div class="form-group"><label class="form-label">当前市值</label><input type="number" class="input" id="investValue" placeholder="当前市值" step="0.01" min="0"></div>
+      <div class="modal-actions"><button class="btn btn-secondary" onclick="closeInvestModal()">取消</button><button class="btn" onclick="saveInvest()">保存</button></div>
+    </div>`;
+    div.addEventListener('click', closeInvestModal);
+    document.body.appendChild(div);
+    modal = div;
+  }
+  modal.classList.add('show');
+}
+function closeInvestModal() {
+  const m = document.getElementById('investModal'); if (m) m.classList.remove('show');
+  ['investName','investAmount','investValue'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+function saveInvest() {
+  const name = document.getElementById('investName').value.trim();
+  const type = document.getElementById('investType').value;
+  const amount = parseFloat(document.getElementById('investAmount').value) || 0;
+  const value = parseFloat(document.getElementById('investValue').value) || 0;
+  if (!name) { toast('请输入投资名称'); return; }
+  const exist = store.investments.find(i => i.name === name);
+  if (exist) { exist.amount = amount; exist.value = value; exist.type = type; }
+  else { store.investments.push({name, type, amount, value}); }
+  saveData(); closeInvestModal(); renderInvestments(); renderMilestones();
+  toast('投资已记录');
+}
+function delInvest(name) { store.investments = store.investments.filter(i => i.name !== name); saveData(); renderInvestments(); renderMilestones(); }
+function renderInvestments() {
+  const el = document.getElementById('investList');
+  if (store.investments.length === 0) { el.innerHTML = '<div class="empty-state">暂无投资记录</div>'; return; }
+  el.innerHTML = store.investments.map(i => {
+    const profit = i.value - i.amount;
+    const rate = i.amount > 0 ? (profit / i.amount * 100) : 0;
+    const color = profit >= 0 ? 'var(--success)' : 'var(--danger)';
+    return `<div class="task-item">
+      <div style="flex:1">
+        <div style="font-weight:600;font-size:13px">${escapeHtml(i.name)} <span style="font-size:10px;color:var(--text-muted)">${escapeHtml(i.type)}</span></div>
+        <div style="font-size:11px;color:var(--text-muted)">投入 ¥${i.amount.toFixed(2)} → 市值 ¥${i.value.toFixed(2)}</div>
+        <div style="font-size:11px;color:${color};font-weight:600">${profit>=0?'+':''}¥${profit.toFixed(2)} (${rate>=0?'+':''}${rate.toFixed(1)}%)</div>
+      </div>
+      <button class="btn-delete" onclick="delInvest('${escapeHtml(i.name).replace(/'/g,"\\'")}')">×</button>
+    </div>`;
+  }).join('');
+}
+
+// 理财里程碑
+function renderMilestones() {
+  const el = document.getElementById('milestoneList');
+  const now = new Date();
+  const mt = getMonthTxns(now.getFullYear(), now.getMonth());
+  let totalSaved = 0;
+  store.transactions.forEach(t => {
+    if (t.type === 'income') totalSaved += t.amount;
+    else totalSaved -= t.amount;
+  });
+  const totalInvest = store.investments.reduce((sum, i) => sum + i.value, 0);
+
+  const milestones = [
+    {icon:'📝', label:'坚持记账', reached: store.transactions.length >= 30, desc: '累计记录30笔'},
+    {icon:'🐷', label:'首笔储蓄', reached: totalSaved >= 1000, desc: '净储蓄达¥1,000'},
+    {icon:'💰', label:'万元户', reached: totalSaved >= 10000, desc: '净储蓄达¥10,000'},
+    {icon:'📈', label:'开始投资', reached: store.investments.length > 0, desc: '已开始投资理财'},
+    {icon:'🎯', label:'三月急金', reached: totalSaved >= 15000, desc: '存够3个月生活费'},
+    {icon:'🌟', label:'投资达人', reached: totalInvest >= 10000, desc: '投资市值过万'},
+    {icon:'🏆', label:'财务自由', reached: totalSaved >= 100000, desc: '净储蓄¥100,000+'}
+  ];
+
+  el.innerHTML = milestones.map(m => `
+    <div style="min-width:80px;text-align:center;padding:8px;border-radius:8px;background:${m.reached?'#10b98115':'#f3f4f6'};opacity:${m.reached?1:0.5}">
+      <div style="font-size:24px">${m.icon}</div>
+      <div style="font-size:11px;font-weight:${m.reached?'700':'400'};color:${m.reached?'var(--success)':'var(--text-muted)'}">${m.label}</div>
+      <div style="font-size:9px;color:var(--text-muted)">${m.desc}</div>
+      ${m.reached ? '<div style="font-size:14px">✅</div>' : '<div style="font-size:14px">🔒</div>'}
+    </div>
+  `).join('');
 }
 
 // ========== 日历 ==========
@@ -1608,6 +2020,7 @@ function updateCheckin(){
   if(!store.checkin[t]) store.checkin[t]={};
   store.checkin[t].en=store.enTasks.some(x=>x.date===t&&x.done)||store.words.some(w=>w.date===t);
   store.checkin[t].fit=store.fitTasks.some(x=>x.date===t&&x.done);
+  store.checkin[t].media=store.publishPlan.some(p=>p.date===t&&p.done);
 }
 function calcStreak(){
   let s=0; const d=new Date();
@@ -1624,10 +2037,19 @@ function renderDashboard(){
   const s=calcStreak();
   document.getElementById('streakDays').textContent=s;
   document.getElementById('streakSub').textContent=s>0?'继续保持!':'开始第一天';
-  const tw=store.words.filter(w=>w.date===todayStr()).length;
-  document.getElementById('todayWordCount').textContent=tw;
-  document.getElementById('wordSub').textContent=tw>=5?'今日已完成🎉':`还差${5-tw}个`;
-  const now=new Date(), ws=new Date(now); ws.setDate(now.getDate()-now.getDay());
+  // 累计单词数
+  const totalW = store.words.length;
+  document.getElementById('totalWords').textContent = totalW;
+  // 本周学习天数(有背单词的天数)
+  const now=new Date();
+  let studyDays=0;
+  for(let i=0;i<7;i++){
+    const d=new Date(now); d.setDate(d.getDate()-i);
+    const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    if(store.words.some(w=>w.date===ds)||store.enTasks.some(t=>t.date===ds)) studyDays++;
+  }
+  document.getElementById('weekStudyDays').textContent=studyDays;
+  const ws=new Date(now); ws.setDate(now.getDate()-now.getDay());
   let wt=0,wd=0;
   for(let i=0;i<7;i++){
     const d=new Date(ws); d.setDate(d.getDate()+i);
@@ -1681,8 +2103,8 @@ function renderAll(){
   document.getElementById('enExamDate').textContent=store.enExamDate||'点击设置';
   if(store.enExamDate){const ex=new Date(store.enExamDate);const diff=Math.ceil((ex-d)/(1000*60*60*24));document.getElementById('examCountdown').textContent=diff>0?`距考试${diff}天`:diff===0?'今天考试!':`已过${-diff}天`;}else{document.getElementById('examCountdown').textContent='';}
   renderWords(); renderEnWeekPlan(); renderEnBarChart(); renderWordLibrary(); renderSpeakPractice();
-  renderFitGoal(); renderFitTasks(); renderFitWeekPlan(); renderCardioList(); renderStrengthList(); renderWeightChart();
-  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderPublishPlan(); renderWorks();
+  renderFitGoal(); renderFitTasks(); renderFitStats(); renderFitWeekPlan(); renderCardioList(); renderStrengthList(); renderWeightChart();
+  renderMediaTags(); renderOutfits(); renderGoods(); renderRecutIdeas(); renderPublishPlan(); renderWorks(); renderMediaStats(); renderMediaCalendar();
   renderFinance();
   renderDashboard();
 }
