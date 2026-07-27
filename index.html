@@ -422,6 +422,7 @@
   <div class="nav-item" data-view="english" onclick="switchView('english')"><span class="nav-icon">📚</span> 英语学习</div>
   <div class="nav-item" data-view="fitness" onclick="switchView('fitness')"><span class="nav-icon">💪</span> 健身管理</div>
   <div class="nav-item" data-view="media" onclick="switchView('media')"><span class="nav-icon">👗</span> 自媒体内容</div>
+  <div class="nav-item" data-view="videoedit" onclick="switchView('videoedit')"><span class="nav-icon">🎬</span> 拍摄剪辑学习</div>
   <div class="nav-item" data-view="finance" onclick="switchView('finance')"><span class="nav-icon">💰</span> 小白理财</div>
   <div class="nav-item" data-view="calendar" onclick="switchView('calendar')"><span class="nav-icon">📅</span> 日历视图</div>
   <div class="nav-item" data-view="hotnews" onclick="switchView('hotnews')"><span class="nav-icon">🔥</span> 热门热点</div>
@@ -647,20 +648,6 @@
       <div class="goal-sub" style="margin-top:4px">发布平台: <span id="mediaTags"></span></div>
     </div>
 
-    <!-- 拍摄剪辑学习 -->
-    <div class="card">
-      <div class="card-title">
-        <span>🎬 拍摄剪辑学习</span>
-        <span style="font-size:11px;color:var(--text-muted)">零基础短视频拍摄+剪辑,每日推送一节</span>
-      </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-        <span style="font-size:13px;color:var(--text-muted)">学习进度</span>
-        <span style="font-size:13px;font-weight:700;color:var(--primary)" id="courseProgress">0/6 节</span>
-      </div>
-      <div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill" id="courseBar" style="width:0%"></div></div>
-      <div id="courseList"></div>
-    </div>
-
     <div class="card">
       <div class="card-title"><span>👔 穿搭分享灵感</span><button class="btn btn-secondary btn-sm" onclick="openContentModal('outfit')">+ 添加</button></div>
       <div class="grid-2" id="outfitList"></div>
@@ -850,6 +837,61 @@
       <div class="card-title"><span>🔥 今日热点速览</span><span style="font-size:11px;color:var(--text-muted)">穿搭·健身·理财·科技</span></div>
       <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px" id="hotTags"></div>
       <div id="hotNewsList"></div>
+    </div>
+  </div>
+
+  <!-- ===== 拍摄剪辑学习 ===== -->
+  <div class="view" id="view-videoedit">
+    <div class="goal-card">
+      <div class="goal-label">🎬 拍摄剪辑学习</div>
+      <div class="goal-value">零基础短视频拍摄+剪辑,每日推送一节</div>
+      <div class="goal-sub">已学 <span id="courseDoneCount">0</span> 节 / 共 <span id="courseTotalCount">0</span> 节</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+        <span style="font-size:13px;color:var(--text-muted)">学习进度</span>
+        <span style="font-size:13px;font-weight:700;color:var(--primary)" id="courseProgress2">0/0 节</span>
+      </div>
+      <div class="progress-bar" style="margin-bottom:16px"><div class="progress-fill" id="courseBar2" style="width:0%"></div></div>
+      <div id="courseList2"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span>📚 学习资源库</span></div>
+      <div style="font-size:13px;color:var(--text-muted);line-height:2;margin-bottom:12px">
+        以下平台有大量免费拍摄剪辑教程,点击即可跳转学习:
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px">
+        <a href="https://www.xiaohongshu.com/search_result?keyword=%E6%8B%8D%E6%91%84%E5%89%AA%E8%BE%91%E6%95%99%E7%A8%8B" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:#ff244215;border:1px solid #ff244230;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-size:28px;margin-bottom:4px">📕</div>
+            <div style="font-size:14px;font-weight:700;color:#ff2442">小红书</div>
+            <div style="font-size:11px;color:var(--text-muted)">搜索拍摄剪辑教程</div>
+          </div>
+        </a>
+        <a href="https://www.douyin.com/search/%E6%8B%8D%E6%91%84%E5%89%AA%E8%BE%91%E6%95%99%E7%A8%8B" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:#00000010;border:1px solid #00000020;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-size:28px;margin-bottom:4px">🎵</div>
+            <div style="font-size:14px;font-weight:700;color:#000">抖音</div>
+            <div style="font-size:11px;color:var(--text-muted)">搜索拍摄剪辑教程</div>
+          </div>
+        </a>
+        <a href="https://search.bilibili.com/all?keyword=%E6%8B%8D%E6%91%84%E5%89%AA%E8%BE%91%E6%95%99%E7%A8%8B" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:#fb729915;border:1px solid #fb729930;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-size:28px;margin-bottom:4px">📺</div>
+            <div style="font-size:14px;font-weight:700;color:#fb7299">B站</div>
+            <div style="font-size:11px;color:var(--text-muted)">搜索拍摄剪辑教程</div>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/results?search_query=%E6%8B%8D%E6%91%84%E5%89%AA%E8%BE%91%E6%95%99%E7%A8%8B" target="_blank" rel="noopener" style="text-decoration:none">
+          <div style="background:#ff000015;border:1px solid #ff000030;border-radius:10px;padding:14px;text-align:center">
+            <div style="font-size:28px;margin-bottom:4px">▶️</div>
+            <div style="font-size:14px;font-weight:700;color:#ff0000">YouTube</div>
+            <div style="font-size:11px;color:var(--text-muted)">搜索拍摄剪辑教程</div>
+          </div>
+        </a>
+      </div>
     </div>
   </div>
 
@@ -1784,30 +1826,38 @@ function renderWorks() {
 
 // 课程学习
 function renderCourses() {
-  const el = document.getElementById('courseList');
   const courses = store.courses || [];
-  if (courses.length === 0) { el.innerHTML = '<div class="empty-state">暂无课程</div>'; return; }
-
   const doneCount = courses.filter(c => c.done).length;
   const total = courses.length;
-  document.getElementById('courseProgress').textContent = `${doneCount}/${total} 节`;
-  document.getElementById('courseBar').style.width = total > 0 ? (doneCount/total*100) + '%' : '0%';
 
-  el.innerHTML = courses.map(c => `
-    <div class="course-item">
-      <div class="course-icon">${c.icon}</div>
-      <div class="course-body">
-        <div class="course-title">第${c.num}课 · ${escapeHtml(c.title)}</div>
-        <div class="course-tags">${c.tags.map(t => `<span class="course-tag">${escapeHtml(t)}</span>`).join('')}</div>
-        <div class="course-desc">${escapeHtml(c.desc)} · ${escapeHtml(c.duration)}</div>
-      </div>
-      <div class="course-actions">
-        <a class="course-btn bili" href="https://www.bilibili.com/video/${escapeHtml(c.bvid)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📺 B站</a>
-        <a class="course-btn douyin" href="${escapeHtml(c.douyin)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🎵 抖音</a>
-        <button class="course-btn checkin ${c.done?'done':''}" onclick="toggleCourse('${c.id}')">${c.done?'✓ 已打卡':'打卡'}</button>
-      </div>
-    </div>
-  `).join('');
+  // 更新独立页面的课程列表
+  const el2 = document.getElementById('courseList2');
+  if (el2) {
+    document.getElementById('courseDoneCount').textContent = doneCount;
+    document.getElementById('courseTotalCount').textContent = total;
+    document.getElementById('courseProgress2').textContent = `${doneCount}/${total} 节`;
+    document.getElementById('courseBar2').style.width = total > 0 ? (doneCount/total*100) + '%' : '0%';
+
+    if (courses.length === 0) {
+      el2.innerHTML = '<div class="empty-state">暂无课程</div>';
+    } else {
+      el2.innerHTML = courses.map(c => `
+        <div class="course-item">
+          <div class="course-icon">${c.icon}</div>
+          <div class="course-body">
+            <div class="course-title">第${c.num}课 · ${escapeHtml(c.title)}</div>
+            <div class="course-tags">${c.tags.map(t => `<span class="course-tag">${escapeHtml(t)}</span>`).join('')}</div>
+            <div class="course-desc">${escapeHtml(c.desc)} · ${escapeHtml(c.duration)}</div>
+          </div>
+          <div class="course-actions">
+            <a class="course-btn bili" href="https://www.bilibili.com/video/${escapeHtml(c.bvid)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">📺 B站</a>
+            <a class="course-btn douyin" href="${escapeHtml(c.douyin)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🎵 抖音</a>
+            <button class="course-btn checkin ${c.done?'done':''}" onclick="toggleCourse('${c.id}')">${c.done?'✓ 已打卡':'打卡'}</button>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
 }
 function toggleCourse(id) {
   const c = store.courses.find(x => x.id === id);
