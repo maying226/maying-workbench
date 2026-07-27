@@ -2,6 +2,7 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
+<meta name="referrer" content="no-referrer">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#7c3aed">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1472,7 +1473,7 @@ function exerciseCardHtml(e, i, type) {
       <div class="exercise-row"><div class="label">💡 正确做法</div><div class="val">${escapeHtml(e.tips||'')}</div></div>
       <div class="exercise-row"><div class="label">⚠️ 常见错误</div><div class="val">${escapeHtml(e.common||'')}</div></div>
       <div class="exercise-row"><div class="label">🎯 目标肌群</div><div class="val">${escapeHtml(e.muscles||'')}</div></div>
-      ${e.video ? `<div class="exercise-video"><div class="exercise-video-label">🎬 动作教学视频</div><div class="video-wrapper"><iframe src="https://player.bilibili.com/player.html?bvid=${escapeHtml(e.video)}&page=1&high_quality=1&autoplay=0" frameborder="0" allowfullscreen scrolling="no"></iframe></div></div>` : ''}
+      ${e.video ? `<div class="exercise-video"><div class="exercise-video-label">🎬 动作教学视频</div><div class="video-wrapper"><iframe src="//player.bilibili.com/player.html?bvid=${escapeHtml(e.video)}&page=1&high_quality=1&autoplay=0" frameborder="0" allowfullscreen allow="autoplay; encrypted-media" scrolling="no"></iframe></div></div>` : ''}
       <div style="margin-top:8px;text-align:right">
         <button class="btn-delete" onclick="event.stopPropagation();${delFn}(${i})">删除</button>
       </div>
