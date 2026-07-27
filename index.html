@@ -223,11 +223,27 @@
   /* 动作库 */
   .exercise-card {
     background: var(--bg); border-radius: 8px; padding: 12px; margin-bottom: 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--border); cursor: pointer; transition: all 0.15s;
   }
-  .exercise-name { font-weight: 600; font-size: 13px; margin-bottom: 2px; }
-  .exercise-desc { font-size: 11px; color: var(--text-muted); }
-  .exercise-tag { font-size: 10px; padding: 1px 6px; border-radius: 3px; display: inline-block; margin-top: 4px; }
+  .exercise-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+  .exercise-card.expanded { border-color: var(--primary); background: var(--card); }
+  .exercise-head { display: flex; align-items: center; justify-content: space-between; }
+  .exercise-name { font-weight: 600; font-size: 14px; }
+  .exercise-desc { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+  .exercise-body { display: none; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--border); }
+  .exercise-card.expanded .exercise-body { display: block; }
+  .exercise-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: flex-start; }
+  .exercise-row .label { font-size: 11px; font-weight: 600; color: var(--text-muted); min-width: 55px; white-space: nowrap; }
+  .exercise-row .val { font-size: 12px; color: var(--text); line-height: 1.6; }
+  .exercise-video-link {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12px; color: var(--primary); font-weight: 600;
+    text-decoration: none; padding: 4px 10px;
+    background: var(--primary-light); border-radius: 4px;
+    margin-top: 8px;
+  }
+  .exercise-video-link:hover { background: var(--primary); color: white; }
+  .exercise-tag { font-size: 10px; padding: 2px 7px; border-radius: 4px; display: inline-block; }
   .tag-cardio { background: #d1fae5; color: #047857; }
   .tag-strength { background: #fef3c7; color: #b45309; }
   /* 体重图 */
@@ -789,20 +805,23 @@ function loadData() {
     fitTasks: [],
     fitWeekPlan: ['休息','有氧','无氧','有氧','无氧','混合','休息'],
     cardioExercises: [
-      {name:'慢跑', desc:'30-40分钟,心率120-140', detail:'热身5min→慢跑30min→拉伸5min'},
-      {name:'跳绳', desc:'15-20分钟,高效燃脂', detail:'分组:1分钟跳+30秒休息,做10组'},
-      {name:'骑行/动感单车', desc:'40分钟,低冲击', detail:'适合膝盖不适者'},
-      {name:'HIIT', desc:'20分钟,高强度间歇', detail:'开合跳/高抬腿/波比跳 各30秒,休息15秒,循环'},
-      {name:'快走', desc:'45分钟,入门友好', detail:'坡度走效果更好'}
+      {name:'慢跑', desc:'30-40分钟 燃脂入门', detail:'热身5min→慢跑30min→拉伸5min', tips:'保持心率120-140,能说话但不能唱歌的程度', common:'脚跟先着地,不要弯腰驼背', muscles:'全身燃脂', video:'https://www.bilibili.com/video/BV1gJ411z7V6'},
+      {name:'跳绳', desc:'15-20分钟 高效燃脂', detail:'分组:跳1分钟+休息30秒×10组', tips:'脚尖落地,膝盖微屈缓冲,不要跳太高', common:'全脚掌落地容易伤膝盖', muscles:'全身+小腿+核心', video:'https://www.bilibili.com/video/BV1ab4y1S7fW'},
+      {name:'开合跳', desc:'5分钟热身/20分钟燃脂', detail:'手脚同时打开合拢,保持节奏', tips:'核心收紧,落地轻,呼吸配合动作', common:'手臂没伸直,落地太重', muscles:'全身+肩部+腿部', video:'https://www.bilibili.com/video/BV1rJ411v7pF'},
+      {name:'高抬腿', desc:'30秒×5组 爆发力训练', detail:'大腿抬到与地面平行,快速交替', tips:'摆臂配合抬腿节奏,核心收紧', common:'腿抬不够高,身体后仰', muscles:'腿部+核心+髋部', video:'https://www.bilibili.com/video/BV1QJ411Y7Lp'},
+      {name:'波比跳', desc:'10个×3组 全身燃脂', detail:'下蹲→俯卧撑→跳起,连贯完成', tips:'动作连贯比速度重要,初学者可去掉俯卧撑', common:'腰部塌陷,跳起不够高', muscles:'全身(胸+腿+核心)', video:'https://www.bilibili.com/video/BV1wJ411Y7kz'},
+      {name:'登山跑', desc:'30秒×4组 核心+燃脂', detail:'平板支撑姿势,膝盖交替靠近胸口', tips:'臀部不要翘太高,保持身体一条线', common:'臀部过高,速度不均匀', muscles:'核心+髋屈肌+肩部', video:'https://www.bilibili.com/video/BV1r7411n7RQ'},
+      {name:'椭圆机', desc:'30-40分钟 低冲击有氧', detail:'匀速踩踏,可加阻力,对膝盖友好', tips:'脚掌贴紧踏板,不要踮脚,手扶把手保持平衡', common:'身体晃动太大,速度忽快忽慢', muscles:'腿部+臀部', video:'https://www.bilibili.com/video/BV1v4411a7Lx'}
     ],
     strengthExercises: [
-      {name:'深蹲', desc:'下肢之王 4组x12次', detail:'脚尖微外八,膝盖不内扣'},
-      {name:'卧推', desc:'胸肌 4组x10次', detail:'肩胛后缩,控制下放速度'},
-      {name:'硬拉', desc:'背+腿后侧 4组x8次', detail:'保持脊柱中立,不要弓背'},
-      {name:'哑铃推举', desc:'肩部 4组x12次', detail:'核心收紧,不要借力'},
-      {name:'引体向上', desc:'背部 3组x力竭', detail:'做不了可用弹力带辅助'},
-      {name:'平板支撑', desc:'核心 3组x60秒', detail:'身体成一条直线'},
-      {name:'臀桥', desc:'臀部 4组x15次', detail:'顶峰收缩2秒'}
+      {name:'深蹲', desc:'下肢之王 4组×12次', detail:'双脚与肩同宽,下蹲至大腿平行地面', tips:'膝盖方向与脚尖一致,背部挺直,重心在脚后跟', common:'膝盖内扣、脚跟离地、弓背', muscles:'股四头肌+臀部+核心', video:'https://www.bilibili.com/video/BV1wJ411Y7H8'},
+      {name:'臀桥', desc:'蜜桃臀必备 4组×15次', detail:'仰卧屈膝,臀部发力向上顶,顶峰停留2秒', tips:'下巴微收,不要用腰代偿,感受臀部发力', common:'腰过度弓起、脚离臀部太远', muscles:'臀大肌+腘绳肌', video:'https://www.bilibili.com/video/BV1zJ411Y7kP'},
+      {name:'平板支撑', desc:'核心训练 3组×45-60秒', detail:'手肘撑地,身体成一条直线', tips:'收紧腹部和臀部,不要塌腰或撅臀,目视下方', common:'腰部塌陷、臀部过高、憋气', muscles:'核心+肩部+背部', video:'https://www.bilibili.com/video/BV1sJ411v7mF'},
+      {name:'跪姿俯卧撑', desc:'上肢入门 3组×10次', detail:'膝盖着地,手比肩宽,身体下降至胸近地面', tips:'核心收紧,身体成直线,手肘与身体呈45度', common:'肘打太开、腰部塌陷、只做半程', muscles:'胸肌+肱三头肌+肩前束', video:'https://www.bilibili.com/video/BV1PJ411v7gR'},
+      {name:'哑铃推举', desc:'肩部塑形 4组×12次', detail:'坐姿,哑铃从肩部推至头顶,手臂伸直但不锁死', tips:'核心收紧,不要借力后仰,小重量多次数', common:'用腰借力、哑铃相撞、耸肩', muscles:'三角肌+肱三头肌', video:'https://www.bilibili.com/video/BV1dJ411e7kc'},
+      {name:'哑铃划船', desc:'美背训练 4组×12次/侧', detail:'单膝跪凳,同侧手支撑,另一手将哑铃拉至腰部', tips:'背部发力带动手臂,不要用手臂硬拉,顶峰收缩1秒', common:'用手臂发力、身体旋转、耸肩', muscles:'背阔肌+菱形肌+肱二头肌', video:'https://www.bilibili.com/video/BV1sJ411Y7fa'},
+      {name:'侧平举', desc:'直角肩训练 4组×15次', detail:'站立微屈膝,哑铃从体侧抬至与肩同高', tips:'小重量即可,手臂微弯,感受肩部发力,不要甩', common:'重量太大、甩动手臂、耸肩', muscles:'三角肌中束', video:'https://www.bilibili.com/video/BV1gJ411Y7uR'},
+      {name:'卷腹', desc:'马甲线训练 3组×20次', detail:'仰卧屈膝,上半身卷起约30度,感受腹部收缩', tips:'下巴不要贴胸口,腰部贴地,呼气时卷起', common:'脖子用力、腰部离地、幅度太大', muscles:'腹直肌(上腹)', video:'https://www.bilibili.com/video/BV1xJ411Y7gd'}
     ],
     weightRecords: [],
     // 自媒体
@@ -1199,34 +1218,59 @@ function editFitWeek(i) {
 }
 
 function renderCardioList() {
-  document.getElementById('cardioList').innerHTML = store.cardioExercises.map((e, i) => `
-    <div class="exercise-card">
-      <div class="exercise-name">🏃 ${escapeHtml(e.name)}</div>
-      <div class="exercise-desc">${escapeHtml(e.desc)}</div>
-      <div class="exercise-desc" style="margin-top:4px">${escapeHtml(e.detail)}</div>
-      <span class="exercise-tag tag-cardio">有氧</span>
-      <button class="btn-delete" style="float:right" onclick="delCardio(${i})">×</button>
-    </div>`).join('');
+  document.getElementById('cardioList').innerHTML = store.cardioExercises.map((e, i) => exerciseCardHtml(e, i, 'cardio')).join('');
+}
+function renderStrengthList() {
+  document.getElementById('strengthList').innerHTML = store.strengthExercises.map((e, i) => exerciseCardHtml(e, i, 'strength')).join('');
+}
+function exerciseCardHtml(e, i, type) {
+  const emoji = type === 'cardio' ? '🏃' : '🏋️';
+  const tagClass = type === 'cardio' ? 'tag-cardio' : 'tag-strength';
+  const tagText = type === 'cardio' ? '有氧' : '无氧';
+  const delFn = type === 'cardio' ? 'delCardio' : 'delStrength';
+  return `<div class="exercise-card" id="ex-${type}-${i}" onclick="toggleExercise('${type}',${i})">
+    <div class="exercise-head">
+      <div style="flex:1">
+        <div class="exercise-name">${emoji} ${escapeHtml(e.name)}</div>
+        <div class="exercise-desc">${escapeHtml(e.desc)}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="exercise-tag ${tagClass}">${tagText}</span>
+        <span style="font-size:12px;color:var(--text-muted)" class="ex-arrow" id="ex-arrow-${type}-${i}">展开 ›</span>
+      </div>
+    </div>
+    <div class="exercise-body">
+      <div class="exercise-row"><div class="label">📋 训练方案</div><div class="val">${escapeHtml(e.detail)}</div></div>
+      <div class="exercise-row"><div class="label">💡 正确做法</div><div class="val">${escapeHtml(e.tips||'')}</div></div>
+      <div class="exercise-row"><div class="label">⚠️ 常见错误</div><div class="val">${escapeHtml(e.common||'')}</div></div>
+      <div class="exercise-row"><div class="label">🎯 目标肌群</div><div class="val">${escapeHtml(e.muscles||'')}</div></div>
+      ${e.video ? `<a href="${e.video}" target="_blank" class="exercise-video-link" onclick="event.stopPropagation()">▶️ 观看教学视频</a>` : ''}
+      <div style="margin-top:8px;text-align:right">
+        <button class="btn-delete" onclick="event.stopPropagation();${delFn}(${i})">删除</button>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleExercise(type, i) {
+  const card = document.getElementById('ex-' + type + '-' + i);
+  const arrow = document.getElementById('ex-arrow-' + type + '-' + i);
+  if (!card) return;
+  if (card.classList.contains('expanded')) {
+    card.classList.remove('expanded');
+    if (arrow) arrow.textContent = '展开 ›';
+  } else {
+    card.classList.add('expanded');
+    if (arrow) arrow.textContent = '收起 ›';
+  }
 }
 function addCardio() {
   const v = document.getElementById('cardioInput').value.trim();
-  if (v) { store.cardioExercises.push({name:v, desc:'自定义动作', detail:'根据自身情况调整'}); saveData(); renderCardioList(); document.getElementById('cardioInput').value=''; }
+  if (v) { store.cardioExercises.push({name:v, desc:'自定义动作', detail:'根据自身情况调整', tips:'保持正确姿势', common:'根据个人情况', muscles:'自定义', video:''}); saveData(); renderCardioList(); document.getElementById('cardioInput').value=''; }
 }
 function delCardio(i) { store.cardioExercises.splice(i,1); saveData(); renderCardioList(); }
-
-function renderStrengthList() {
-  document.getElementById('strengthList').innerHTML = store.strengthExercises.map((e, i) => `
-    <div class="exercise-card">
-      <div class="exercise-name">🏋️ ${escapeHtml(e.name)}</div>
-      <div class="exercise-desc">${escapeHtml(e.desc)}</div>
-      <div class="exercise-desc" style="margin-top:4px">${escapeHtml(e.detail)}</div>
-      <span class="exercise-tag tag-strength">无氧</span>
-      <button class="btn-delete" style="float:right" onclick="delStrength(${i})">×</button>
-    </div>`).join('');
-}
 function addStrength() {
   const v = document.getElementById('strengthInput').value.trim();
-  if (v) { store.strengthExercises.push({name:v, desc:'自定义动作 4组x10次', detail:'注意动作标准'}); saveData(); renderStrengthList(); document.getElementById('strengthInput').value=''; }
+  if (v) { store.strengthExercises.push({name:v, desc:'自定义动作 4组x10次', detail:'注意动作标准', tips:'保持核心收紧', common:'不要借力', muscles:'自定义', video:''}); saveData(); renderStrengthList(); document.getElementById('strengthInput').value=''; }
 }
 function delStrength(i) { store.strengthExercises.splice(i,1); saveData(); renderStrengthList(); }
 
